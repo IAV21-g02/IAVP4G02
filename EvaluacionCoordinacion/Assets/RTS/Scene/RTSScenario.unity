@@ -478,6 +478,7 @@ GameObject:
   m_Component:
   - component: {fileID: 199240328}
   - component: {fileID: 199240327}
+  - component: {fileID: 199240329}
   m_Layer: 9
   m_Name: FremenController
   m_TagString: Untagged
@@ -519,6 +520,19 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &199240329
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 199240326}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e63ca4bbb8258d24b96853acf84e36ad, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  team_: 1
 --- !u!1001 &243753206
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1414,6 +1428,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 498490411}
+  - component: {fileID: 498490412}
   m_Layer: 8
   m_Name: GrabenCamp
   m_TagString: Untagged
@@ -1439,6 +1454,19 @@ Transform:
   m_Father: {fileID: 1583882780}
   m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &498490412
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 498490410}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e63ca4bbb8258d24b96853acf84e36ad, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  team_: 2
 --- !u!1 &516885404
 GameObject:
   m_ObjectHideFlags: 0
@@ -1564,6 +1592,7 @@ GameObject:
   m_Component:
   - component: {fileID: 602950445}
   - component: {fileID: 602950446}
+  - component: {fileID: 602950444}
   m_Layer: 9
   m_Name: HarkonnenController
   m_TagString: Untagged
@@ -1571,6 +1600,19 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!114 &602950444
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 602950443}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e63ca4bbb8258d24b96853acf84e36ad, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  team_: 0
 --- !u!4 &602950445
 Transform:
   m_ObjectHideFlags: 0
