@@ -5,13 +5,12 @@ using UnityEngine;
 
 namespace es.ucm.fdi.iav.rts.g02
 {
-
-  
     public class CasillaBehaviour : MonoBehaviour
     {
-        private Type team_;
-        private int prioridadMilitar;
-        private int prioridadDefensa;
+        public Type team_;
+        public int prioridadMilitar;
+        public int prioridadDefensa;
+        public int unidadesCasilla;
         private int fil;
         private int col;
         // Start is called before the first frame update
@@ -19,7 +18,9 @@ namespace es.ucm.fdi.iav.rts.g02
         {
             prioridadMilitar = 0;
             prioridadDefensa = 0;
+            unidadesCasilla = 0;
             team_ = Type.VACIA;
+            cambiaCasillaColor();
         }
 
         // Update is called once per frame
@@ -28,65 +29,121 @@ namespace es.ucm.fdi.iav.rts.g02
 
         }
 
-        private void OnTriggerEnter(Collider other)
+        public void unidadEntraCasilla(UnitType unit_)
         {
-            Team t = other.gameObject.GetComponentInParent<Team>();
-            if (t)
+            unidadesCasilla += 1;
+            if (unit_.Equals(Type.VERDE))
             {
-                switch (t.myTeam())
+                team_ = Type.VERDE;
+                prioridadMilitar += unit_.influencia;
+            }
+            else if (unit_.unitOwner == team_ || team_ == Type.NEUTRAL || team_ == Type.VACIA) 
+            {
+                if (unit_.unit == Unit.DEFENSA)
+                    prioridadDefensa += unit_.influencia;
+                else
+                    prioridadMilitar += unit_.influencia;
+
+                team_ = unit_.unitOwner;
+            }
+            else
+            {
+                prioridadMilitar -= unit_.influencia;
+                if (prioridadMilitar < 0)
                 {
-                    case Type.AZUL:
-                        if(team_ == Type.VACIA) team_ = Type.AZUL;
-                        if (other.gameObject.GetComponent<ProcessingFacility>())
-                        {
-
-
-                        }
-                        else if (other.gameObject.GetComponent<ExplorationUnit>())
-                        {
-
-                        }
-                        else if (other.gameObject.GetComponent<DestructionUnit>())
-                        {
-
-                        }
-                        else if (other.gameObject.GetComponent<ExtractionUnit>())
-                        {
-
-                        }
-
-
-                        break;
-                    case Type.AMARILLO:
-                        team_ = Type.AMARILLO;
-
-
-                        break;
-                    case Type.VERDE:
-                        team_ = Type.VERDE;
-
-                      
-
-                        break;
+                    team_ = unit_.unitOwner;
+                    prioridadMilitar = Mathf.Abs(prioridadMilitar);
+                }
+                else if(prioridadMilitar == 0)
+                {
+                    team_ = Type.NEUTRAL;
                 }
             }
 
+            cambiaCasillaColor();
         }
 
-        private void OnTriggerExit(Collider other)
-        {
-            
-        }
 
-        private void OnTriggerStay(Collider other)
+        public void unidadSaleCasilla(UnitType unit_)
         {
-            
+            unidadesCasilla -= 1;
+            if (unidadesCasilla <= 0)
+            {
+                team_ = Type.VACIA;
+                prioridadMilitar = 0;
+                prioridadDefensa = 0;
+                unidadesCasilla = 0;
+            }
+            else if (team_.Equals(unit_.unitOwner) || team_.Equals(Type.NEUTRAL))
+            {
+                if (unit_.unit == Unit.DEFENSA)
+                    prioridadDefensa -= unit_.influencia;
+                else
+                    prioridadMilitar -= unit_.influencia;
+
+                if (prioridadMilitar < 0)
+                {
+                    team_ = unit_.unitOwner;
+                    prioridadMilitar = Mathf.Abs(prioridadMilitar);
+                }
+                else if (prioridadMilitar == 0)
+                {
+                    team_ = Type.NEUTRAL;
+                }
+            }
+            else
+            {
+                if (unit_.unit == Unit.DEFENSA)
+                    prioridadDefensa -= unit_.influencia;
+                else
+                    prioridadMilitar += unit_.influencia;
+
+            }
+            cambiaCasillaColor();
         }
 
         public void setMatrixPos(int x, int y)
         {
             fil = x;
             col = y;
+        }
+
+        public int getFila()
+        {
+            return fil;
+        }
+
+        public int getCol()
+        {
+            return col;
+        }
+
+
+        private void cambiaCasillaColor()
+        {
+            Color cl = Color.red;
+            switch (team_)
+            {
+                case Type.AMARILLO:
+                    cl = Color.yellow;
+                    break;
+                case Type.AZUL:
+                    cl = Color.blue;
+                    break;
+                case Type.VERDE:
+                    cl = Color.green;
+                    break;
+                case Type.NEUTRAL:
+                    cl = Color.gray;
+                    break;
+                case Type.VACIA:
+                    cl = Color.white;
+                    break;
+                default:
+                    break;
+            }
+            cl.a = 0.2f;
+            gameObject.GetComponent<MeshRenderer>().material.color = cl;
         }
 
     }

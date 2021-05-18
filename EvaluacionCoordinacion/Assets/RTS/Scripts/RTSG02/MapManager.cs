@@ -4,14 +4,6 @@ using UnityEngine;
 
 namespace es.ucm.fdi.iav.rts.g02
 {
-    //public struct casilla
-    //{
-    //    Type team_;
-    //    public int prioridad;
-    //    public GameObject celda;
-    //}
-
-
     public class MapManager : MonoBehaviour
     {
         public int filas;
@@ -21,8 +13,28 @@ namespace es.ucm.fdi.iav.rts.g02
         public GameObject ejemplo;
         // private casilla[,] matriz;
         private CasillaBehaviour[,] matriz;
+        private static MapManager instance_;
 
         // Start is called before the first frame update
+
+        private void Awake()
+        {
+            if (instance_ == null)
+            {
+                instance_ = this;
+            }
+            else
+            {
+                Destroy(this.gameObject);
+            }
+        }
+
+        public static MapManager getInstance()
+        {
+            return instance_;
+        }
+
+
         void Start()
         {
             grid = GetComponentInParent<Grid>();
@@ -56,6 +68,7 @@ namespace es.ucm.fdi.iav.rts.g02
                     Vector3 pos = new Vector3(minPos.x + (i * grid.cellSize.x), 0, minPos.z + (j * grid.cellSize.z));
                     currCasilla.transform.localPosition = pos;
                     matriz[i, j] = currCasilla.GetComponent<CasillaBehaviour>();
+                    matriz[i, j].setMatrixPos(i,j);
                 }
             }
         }
@@ -66,31 +79,59 @@ namespace es.ucm.fdi.iav.rts.g02
 
         }
 
-        public void actualizaPrioridad(int priority, int radius, int fil, int col)
+        public void actualizaPrioridadAlEntrar(CasillaBehaviour casilla,UnitType unit_)
         {
+            casilla.unidadEntraCasilla(unit_);
+            if (unit_.unit == Unit.DEFENSA) return;
+
+            UnitType aux = unit_;
+            aux.influencia--;
+            
             //int i = fil-radius;
             //int j = col-radius;
             //recorremos la submatriz correspondiente
-            for(int i = fil-radius; i <= fil+radius; i++)
+            for (int i = casilla.getFila() - 1; i <= casilla.getFila() + 1; i++) 
             {
-                for (int j = col - radius; j <= col + radius; j++)
+                for (int j = casilla.getCol() - 1; j <= casilla.getCol() + 1; j++)
                 {
                     //comprobamos que no nos salimos de la matriz
-                    if(i >= 0 && i < filas && j >= 0 && j < columnas)
+                    if (i >= 0 && i < filas && j >= 0 && j < columnas && casilla != matriz[i,j]) 
                     {
                         //comprobamos que prioridad le corresponde
-                        for(int k = radius; k >= 0; k--)
-                        {
-                            if(i== k )
-                        }
-                        //comprobamos que la prioridad sea menor
-                        if()
+                        matriz[i, j].unidadEntraCasilla(aux);
+                           
                     }
                 }
             }
 
         }
 
+        public void actualizaPrioridadAlSalir(CasillaBehaviour casilla, UnitType unit_)
+        {
+            casilla.unidadSaleCasilla(unit_);
+            if (unit_.unit == Unit.DEFENSA) return;
+
+            UnitType aux = unit_;
+            aux.influencia--;
+
+            //int i = fil-radius;
+            //int j = col-radius;
+            //recorremos la submatriz correspondiente
+            for (int i = casilla.getFila() - 1; i <= casilla.getFila() + 1; i++)
+            {
+                for (int j = casilla.getCol() - 1; j <= casilla.getCol() + 1; j++)
+                {
+                    //comprobamos que no nos salimos de la matriz
+                    if (i >= 0 && i < filas && j >= 0 && j < columnas && casilla != matriz[i, j])
+                    {
+                        //comprobamos que prioridad le corresponde
+                        matriz[i, j].unidadSaleCasilla(aux);
+
+                    }
+                }
+            }
+
+        }
 
     }
 };

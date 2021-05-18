@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 136812760247849341}
   - component: {fileID: 8639413445408183690}
   - component: {fileID: 2346726566721990368}
+  - component: {fileID: 5202085121824386197}
   m_Layer: 8
   m_Name: GrabenTower
   m_TagString: Untagged
@@ -96,6 +97,21 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 0.5, y: 0.4, z: 0.5}
   m_Center: {x: 0, y: 0.2, z: 0}
+--- !u!114 &5202085121824386197
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 136812760247849347}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5fe4e82be0bcf354692275ce95edf236, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  unitOwner: 2
+  unit: 0
+  influencia: 3
 --- !u!1 &4222540574480326015
 GameObject:
   m_ObjectHideFlags: 0
@@ -151,6 +167,8 @@ MeshRenderer:
   m_MotionVectors: 1
   m_LightProbeUsage: 0
   m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -175,6 +193,7 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_AdditionalVertexStreams: {fileID: 0}
 --- !u!208 &6761188418727861362
 NavMeshObstacle:
   m_ObjectHideFlags: 0
