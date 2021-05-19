@@ -16,7 +16,17 @@ namespace es.ucm.fdi.iav.rts.g02
         public Unit unit;
         [Tooltip("Cantidad de puntos de influencia de esta unidad")]
         public int influencia;
+        [Tooltip("Rango de influencia de esta unidad")]
+        public int rango = 0;
 
+        //  Constructor por copia
+        public UnitType(UnitType unitCopy)
+        {
+            unitOwner = unitCopy.unitOwner;
+            unit = unitCopy.unit;
+            influencia = unitCopy.influencia;
+            rango = unitCopy.rango;
+        }
 
 
         private void OnTriggerEnter(Collider other)

@@ -143,6 +143,7 @@ MonoBehaviour:
   unitOwner: 0
   unit: 1
   influencia: 3
+  rango: 0
 --- !u!1 &6276771450035236625
 GameObject:
   m_ObjectHideFlags: 0

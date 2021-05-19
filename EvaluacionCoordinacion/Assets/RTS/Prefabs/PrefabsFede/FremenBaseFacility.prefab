@@ -145,7 +145,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   unitOwner: 1
   unit: 1
-  influencia: 3
+  influencia: 5
+  rango: 0
 --- !u!1 &7506236841215577352
 GameObject:
   m_ObjectHideFlags: 0

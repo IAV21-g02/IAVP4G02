@@ -802,6 +802,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 498490411}
     m_Modifications:
+    - target: {fileID: 5212961402714673525, guid: b40599224dd2baf49a8f8dcf82754a02,
+        type: 3}
+      propertyPath: rango
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 6937177369136768754, guid: b40599224dd2baf49a8f8dcf82754a02,
         type: 3}
       propertyPath: m_Name
@@ -2276,6 +2281,7 @@ MonoBehaviour:
   unitOwner: 1
   unit: 1
   influencia: 3
+  rango: 0
 --- !u!4 &963045066 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 400000, guid: 4786654cf2a14f94abe6dc3610ba99bf,

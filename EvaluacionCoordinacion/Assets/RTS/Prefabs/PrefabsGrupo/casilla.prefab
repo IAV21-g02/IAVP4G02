@@ -108,3 +108,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c3cc181050dd0764a840e555d4e69ef9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  team_: 4
+  prioridadMilitar: 0
+  prioridadDefensa: 0
+  unidadesCasilla: 0
