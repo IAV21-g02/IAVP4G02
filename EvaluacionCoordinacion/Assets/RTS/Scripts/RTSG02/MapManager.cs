@@ -61,7 +61,7 @@ namespace es.ucm.fdi.iav.rts.g02
                     Vector3 pos = new Vector3(minPos.x + (i * grid.cellSize.x), 0, minPos.z + (j * grid.cellSize.z));
                     currCasilla.transform.localPosition = pos;
                     matriz[i, j] = currCasilla.GetComponent<CasillaBehaviour>();
-                    matriz[i, j].setMatrixPos(i,j);
+                    matriz[i, j].setMatrixPos(i, j);
                 }
             }
         }
@@ -72,13 +72,12 @@ namespace es.ucm.fdi.iav.rts.g02
 
         }
 
-        public void actualizaPrioridadAlEntrar(CasillaBehaviour casilla,UnitType unit_)
+        public void actualizaPrioridadAlEntrar(CasillaBehaviour casilla, UnitType unit_)
         {
-            casilla.unidadEntraCasilla(unit_);
+            casilla.unidadEntraCasilla(unit_, unit_.influencia);
             if (unit_.unit == Unit.DEFENSA) return;
 
-            //UnitType aux = new UnitType(unit_);
-            int ing = unit_.influencia - 1;
+
 
             for (int i = casilla.getFila() - unit_.rango; i <= casilla.getFila() + unit_.rango; i++)
             {
@@ -88,33 +87,18 @@ namespace es.ucm.fdi.iav.rts.g02
                     if (i >= 0 && i < filas && j >= 0 && j < columnas && casilla != matriz[i, j])
                     {
                         //comprobamos que prioridad le corresponde
-                        matriz[i, j].modificaInfluenciaAlEntrar(unit_.unitOwner, unit_.unit, ing);
+                        matriz[i, j].unidadEntraCasilla(unit_, unit_.influencia - 1);
                     }
                 }
             }
 
-            ////int i = fil-radius;
-            ////int j = col-radius;
-            ////recorremos la submatriz correspondiente
-            //for (int i = casilla.getFila() - 1; i <= casilla.getFila() + 1; i++) 
-            //{
-            //    for (int j = casilla.getCol() - 1; j <= casilla.getCol() + 1; j++)
-            //    {
-            //        //comprobamos que no nos salimos de la matriz
-            //        if (i >= 0 && i < filas && j >= 0 && j < columnas && casilla != matriz[i,j]) 
-            //        {
-            //            //comprobamos que prioridad le corresponde
-            //            matriz[i, j].unidadEntraCasilla(aux);
-                           
-            //        }
-            //    }
-            //}
+
 
         }
 
         public void actualizaPrioridadAlSalir(CasillaBehaviour casilla, UnitType unit_)
         {
-            casilla.unidadSaleCasilla(unit_);
+            casilla.unidadSaleCasilla(unit_, unit_.influencia);
             if (unit_.unit == Unit.DEFENSA) return;
 
             int inf = unit_.influencia - 1;
@@ -127,23 +111,12 @@ namespace es.ucm.fdi.iav.rts.g02
                     if (i >= 0 && i < filas && j >= 0 && j < columnas && casilla != matriz[i, j])
                     {
                         //comprobamos que prioridad le corresponde
-                        matriz[i, j].modificaInfluenciaAlSalir(unit_.unitOwner, unit_.unit, inf);
+                        matriz[i, j].unidadSaleCasilla(unit_, unit_.influencia - 1);
                     }
                 }
             }
 
-            //for (int i = casilla.getFila() - 1; i <= casilla.getFila() + 1; i++)
-            //{
-            //    for (int j = casilla.getCol() - 1; j <= casilla.getCol() + 1; j++)
-            //    {
-            //        //comprobamos que no nos salimos de la matriz
-            //        if (i >= 0 && i < filas && j >= 0 && j < columnas && casilla != matriz[i, j])
-            //        {
-            //            //comprobamos que prioridad le corresponde
-            //            matriz[i, j].unidadSaleCasilla(aux);
-            //        }
-            //    }
-            //}
+
         }
     }
 };

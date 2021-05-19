@@ -12,7 +12,7 @@ namespace es.ucm.fdi.iav.rts.g02
         //  influencia del equipo que domina esta casilla
         public int prioridadMilitar;
         //  Influencia de defensa de esta casilla 
-        public int prioridadDefensa;
+        //public int prioridadDefensa;
         //  Número de unidades presentes en la casilla
         public int unidadesCasilla;
         //  Fila que representa a esta casilla en vector de mapManager
@@ -28,10 +28,13 @@ namespace es.ucm.fdi.iav.rts.g02
         private int prioridadAzul = 0;
         private int prioridadVerde = 0;
 
+        private int defensaAzul = 0;
+        private int defensaAmarilla = 0;
+
         void Start()
         {
             prioridadMilitar = 0;
-            prioridadDefensa = 0;
+           // prioridadDefensa = 0;
             unidadesCasilla = 0;
             team_ = Type.VACIA;
             cambiaCasillaColor();
@@ -43,27 +46,50 @@ namespace es.ucm.fdi.iav.rts.g02
             {
                 prioridadMilitar = 0;
             }
-
+            //si entre un de mi mismo equipo, en uno neutral o en uno vacio
             if (teamType_.Equals(team_) || team_.Equals(Type.NEUTRAL) || team_.Equals(Type.VACIA))
             {
-                if (unit_.Equals(Unit.MILITAR))
-                    prioridadMilitar += infl_;
-                else
-                    prioridadDefensa += infl_;
-
-                team_ = teamType_;
-            }
-            else if (!teamType_.Equals(team_))
-            {
+                //si es una unidad militar
                 if (unit_.Equals(Unit.MILITAR))
                 {
-                    prioridadMilitar -= infl_;
+                    //aumentamos la priorida militar de esa zona
+                    prioridadMilitar += infl_;
+                    //la casilla pasa a ser de tu equipo
+                    team_ = teamType_;
+
+                }
+                else {// si es de defensa
+                    switch (teamType_)
+                    {
+                        case Type.AMARILLO:
+                            defensaAmarilla += infl_;
+                            break;
+                        case Type.AZUL:
+                            defensaAzul += infl_;
+                            break;
+                        
+                    }
+                }
+                   
+
+            }
+            //si no es de tu equipo
+            else if (!teamType_.Equals(team_))
+            {
+                //es una unidad Militar
+                if (unit_.Equals(Unit.MILITAR))
+                {
+
+                    //prioridadMilitar -= infl_;
+                    //cogemos el team con mayor influencia en la casilla
                     team_ = getMayorInfluenciaEnCasilla();
+                    //si la casilla esta vacia o es neutral 
                     if (team_.Equals(Type.VACIA) || team_.Equals(Type.NEUTRAL))
                     {
+                        //prioridad militar =0
                         prioridadMilitar = 0;
                     }
-                    else if (prioridadMilitar < 0)
+                    else //si el team es de algun equipo
                     {
                         switch (team_)
                         {
@@ -80,9 +106,18 @@ namespace es.ucm.fdi.iav.rts.g02
                     }
                 }
                 else
-                    prioridadDefensa += infl_;
+                    switch (teamType_)
+                    {
+                        case Type.AMARILLO:
+                            defensaAmarilla += infl_;
+                            break;
+                        case Type.AZUL:
+                            defensaAzul += infl_;
+                            break;
+
+                    }
             }
-            cambiaCasillaColor();
+            //cambiaCasillaColor();
         }
 
         public void modificaInfluenciaAlSalir(Type teamType_, Unit unit_, int infl_)
@@ -91,19 +126,20 @@ namespace es.ucm.fdi.iav.rts.g02
             {
                 prioridadMilitar = 0;
             }
-
-            if (teamType_.Equals(team_) || team_.Equals(Type.NEUTRAL) || team_.Equals(Type.VERDE))
+            // si salgo en una casilla de mi equipo, neutral o verde
+            if (teamType_.Equals(team_) || team_.Equals(Type.NEUTRAL) /*|| team_.Equals(Type.VERDE)*/)
             {
+                //si es militar
                 if (unit_.Equals(Unit.MILITAR))
                 {
-                    prioridadMilitar -= infl_;
+                   // prioridadMilitar -= infl_;
                     team_ = getMayorInfluenciaEnCasilla();
 
                     if (team_.Equals(Type.NEUTRAL) || teamType_.Equals(Type.VACIA))
                     {
                         prioridadMilitar = 0;
                     }
-                    else if (prioridadMilitar < 0)
+                    else
                     {
                         switch (team_)
                         {
@@ -119,24 +155,47 @@ namespace es.ucm.fdi.iav.rts.g02
                         }
                     }
                 }
-                else
-                    prioridadDefensa -= infl_;
+                else// si soy de defensa
+                    switch (teamType_)
+                    {
+                        case Type.AMARILLO:
+                            defensaAmarilla -= infl_;
+                            break;
+                        case Type.AZUL:
+                            defensaAzul -= infl_;
+                            break;
+
+                    }
 
 
             }
+            //si salgo de una casilla que no es de mi equipo
             else if (!teamType_.Equals(team_))
             {
-                if (unit_.Equals(Unit.MILITAR))
-                    prioridadMilitar += infl_;
-                else
-                    prioridadDefensa -= infl_;
+                //si soy de defensa
+                if (!unit_.Equals(Unit.MILITAR))
+                {
+                    switch (teamType_)
+                    {
+                        case Type.AMARILLO:
+                            defensaAmarilla -= infl_;
+                            break;
+                        case Type.AZUL:
+                            defensaAzul -= infl_;
+                            break;
+
+                    }
+                }
+                    
+                
+                   
 
             }
-            cambiaCasillaColor();
+            
         }
 
         //  Gestiona la entrada de una unidad a esta casilla
-        public void unidadEntraCasilla(UnitType unit_)
+        public void unidadEntraCasilla(UnitType unit_, int influ)
         {
             switch (unit_.unitOwner)
             {
@@ -144,99 +203,31 @@ namespace es.ucm.fdi.iav.rts.g02
                     unidadesAmarillas.Add(unit_);
                     if (unit_.unit.Equals(Unit.MILITAR))
                     {
-                        prioridadAmarilla += unit_.influencia;
+                        prioridadAmarilla += influ;
                     }
                     break;
                 case Type.VERDE:
                     unidadesVerdes.Add(unit_);
                     if (unit_.unit.Equals(Unit.MILITAR))
                     {
-                        prioridadVerde += unit_.influencia;
+                        prioridadVerde += influ;
                     }
                     break;
                 case Type.AZUL:
                     unidadesAzules.Add(unit_);
                     if (unit_.unit.Equals(Unit.MILITAR))
                     {
-                        prioridadAzul += unit_.influencia;
+                        prioridadAzul += influ;
                     }
                     break;
                 default:
                     break;
             }
-            modificaInfluenciaAlEntrar(unit_.unitOwner, unit_.unit, unit_.influencia);
+            modificaInfluenciaAlEntrar(unit_.unitOwner, unit_.unit, influ);
             cambiaCasillaColor();
-            //return;
-
-            //unidadesCasilla += 1;
-            //if (unit_.Equals(Type.VERDE))
-            //{
-            //    team_ = Type.VERDE;
-            //    prioridadMilitar += unit_.influencia;
-            //}
-            //else if (unit_.unitOwner == team_ || team_ == Type.NEUTRAL || team_ == Type.VACIA) 
-            //{
-            //    if (unit_.unit == Unit.DEFENSA)
-            //        prioridadDefensa += unit_.influencia;
-            //    else
-            //        prioridadMilitar += unit_.influencia;
-
-            //    team_ = unit_.unitOwner;
-            //}
-            //else
-            //{
-            //    prioridadMilitar -= unit_.influencia;
-            //    if (prioridadMilitar < 0)
-            //    {
-            //        team_ = unit_.unitOwner;
-            //        prioridadMilitar = Mathf.Abs(prioridadMilitar);
-            //    }
-            //    else if(prioridadMilitar == 0)
-            //    {
-            //        team_ = Type.NEUTRAL;
-            //    }
-            //}
-
-            //cambiaCasillaColor();
+      
         }
-        private int getInfluenciaAmarilla()
-        {
-            int inf = 0;
-            foreach (UnitType unit_ in unidadesAmarillas)
-            {
-                if (unit_.unit.Equals(Unit.MILITAR))
-                {
-                    inf += unit_.influencia;
-                }
-            }
-            return inf;
-        }
-
-        private int getInfluenciaAzul()
-        {
-            int inf = 0;
-            foreach (UnitType unit_ in unidadesAzules)
-            {
-                if (unit_.unit.Equals(Unit.MILITAR))
-                {
-                    inf += unit_.influencia;
-                }
-            }
-            return inf;
-        }
-
-        private int getInfluenciaVerde()
-        {
-            int inf = 0;
-            foreach (UnitType unit_ in unidadesVerdes)
-            {
-                if (unit_.unit.Equals(Unit.MILITAR))
-                {
-                    inf += unit_.influencia;
-                }
-            }
-            return inf;
-        }
+    
 
         private Type getMayorInfluenciaEnCasilla()
         {
@@ -263,7 +254,7 @@ namespace es.ucm.fdi.iav.rts.g02
             }
         }
         //  Gestiona la salida de una unidad a esta casilla
-        public void unidadSaleCasilla(UnitType unit_)
+        public void unidadSaleCasilla(UnitType unit_, int influ)
         {
             switch (unit_.unitOwner)
             {
@@ -271,65 +262,29 @@ namespace es.ucm.fdi.iav.rts.g02
                     unidadesAmarillas.Remove(unit_);
                     if (unit_.unit.Equals(Unit.MILITAR))
                     {
-                        prioridadAmarilla -= unit_.influencia;
+                        prioridadAmarilla -= influ;
                     }
                     break;
                 case Type.VERDE:
                     unidadesVerdes.Remove(unit_);
                     if (unit_.unit.Equals(Unit.MILITAR))
                     {
-                        prioridadVerde -= unit_.influencia;
+                        prioridadVerde -= influ;
                     }
                     break;
                 case Type.AZUL:
                     unidadesAzules.Remove(unit_);
                     if (unit_.unit.Equals(Unit.MILITAR))
                     {
-                        prioridadAzul -= unit_.influencia;
+                        prioridadAzul -= influ;
                     }
                     break;
                 default:
                     break;
             }
 
-            modificaInfluenciaAlSalir(unit_.unitOwner, unit_.unit, unit_.influencia);
-
-
-
-            //unidadesCasilla -= 1;
-            //if (unidadesCasilla <= 0)
-            //{
-            //    team_ = Type.VACIA;
-            //    prioridadMilitar = 0;
-            //    prioridadDefensa = 0;
-            //    unidadesCasilla = 0;
-            //}
-            //else if (team_.Equals(unit_.unitOwner) || team_.Equals(Type.NEUTRAL))
-            //{
-            //    if (unit_.unit == Unit.DEFENSA)
-            //        prioridadDefensa -= unit_.influencia;
-            //    else
-            //        prioridadMilitar -= unit_.influencia;
-
-            //    if (prioridadMilitar < 0)
-            //    {
-            //        team_ = unit_.unitOwner;
-            //        prioridadMilitar = Mathf.Abs(prioridadMilitar);
-            //    }
-            //    else if (prioridadMilitar == 0)
-            //    {
-            //        team_ = Type.NEUTRAL;
-            //    }
-            //}
-            //else
-            //{
-            //    if (unit_.unit == Unit.DEFENSA)
-            //        prioridadDefensa -= unit_.influencia;
-            //    else
-            //        prioridadMilitar += unit_.influencia;
-
-            //}
-            //cambiaCasillaColor();
+            modificaInfluenciaAlSalir(unit_.unitOwner, unit_.unit, influ);
+            cambiaCasillaColor();
         }
 
         //  Configura la fila y la columan de esta casilla
