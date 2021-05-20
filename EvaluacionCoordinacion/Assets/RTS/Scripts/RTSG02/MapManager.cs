@@ -75,7 +75,7 @@ namespace es.ucm.fdi.iav.rts.g02
         public void actualizaPrioridadAlEntrar(CasillaBehaviour casilla, UnitType unit_)
         {
             casilla.unidadEntraCasilla(unit_, unit_.influencia);
-            if (unit_.unit == Unit.DEFENSA) return;
+            if (unit_.unit == Unidad.DEFENSA) return;
 
 
 
@@ -99,7 +99,7 @@ namespace es.ucm.fdi.iav.rts.g02
         public void actualizaPrioridadAlSalir(CasillaBehaviour casilla, UnitType unit_)
         {
             casilla.unidadSaleCasilla(unit_, unit_.influencia);
-            if (unit_.unit == Unit.DEFENSA) return;
+            if (unit_.unit == Unidad.DEFENSA) return;
 
             int inf = unit_.influencia - 1;
             //recorremos la submatriz correspondiente

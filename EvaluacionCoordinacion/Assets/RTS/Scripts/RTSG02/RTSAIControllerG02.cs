@@ -5,6 +5,89 @@ using UnityEngine;
 
 namespace es.ucm.fdi.iav.rts.g02
 {
+
+    struct Batallon
+    {
+        public int numeroExploradores;
+        public int numeroDestructores;
+        public int numeroExtractores;
+        List<ExtractionUnit> extractores;
+        List<DestructionUnit> destructores;
+        List<ExplorationUnit> exploradores;
+        EstOfensiva ofensiva;
+        EstDefensivo defensa;
+        TipoBatallon tipoBatallon;
+        public bool completado;
+        public bool construyendo;
+
+        public void agregaUnidad(DestructionUnit unidad)
+        {
+            destructores.Add(unidad);
+        }
+        public void agregaUnidad(ExtractionUnit unidad)
+        {
+            extractores.Add(unidad);
+        }
+        public void agregaUnidad(ExplorationUnit unidad)
+        {
+            exploradores.Add(unidad);
+        }
+    }
+
+    public enum TipoBatallon
+    {
+        //  Dos destructores
+        BatallonTiwardo,
+        //  Dos exploradores y un destructor
+        BatallonDobleDesayuno,
+        //  Dos exploradores
+        BatallonAurgar,
+
+    }
+
+    //  Estado que se encarga de gestionar la ofensiva de la IA
+    public enum EstOfensiva
+    {
+        //  Ataque directo al nexo
+        AtaqueAlNexo,
+        //  Ataque a todo lo que este cercano a una melange(mina)
+        AtaqueMelange,
+        //  Ataque directo a la factoria
+        AtaqueFactoria,
+        //  Ataque a una concentración de prioridad alta enemiga
+        AtaqueMayorPrio,
+        //  Ataque a las unidades neutrales (verdes)  
+        AtaqueNeutral,
+        //  Ataque a una concetración de menor prioridad enemiga
+        AtaqueMenorPrio,
+        //  
+        Festivo
+    }
+
+    //  Estado que se encarga de gestionar la defensiva de la IA
+    public enum EstDefensivo
+    {
+        //  Defiende una mina y ataca a todo lo que se acerque
+        DefiendeRecurso,
+        //  Defiende a la base
+        DefiendeBase,
+        //  Defiende a la factoria
+        DefiedeFactoria,
+        //  Defiende a un extractor en concreto
+        DefiendeExtractor,
+        //  Defiende de una pos a otra
+        Patrulla,
+    }
+
+    //  Estado que se encarga de gestionar las compras de la IA
+    public enum EstCompras
+    {
+        Extractor,
+        Exploradores,
+        Destructores,
+    }
+
+
     public class RTSAIControllerG02 : RTSAIController
     {
         private int MyIndex { get; set; }
@@ -43,8 +126,16 @@ namespace es.ucm.fdi.iav.rts.g02
         // Número de paso de pensamiento 
         private int ThinkStepNumber { get; set; } = 0;
 
+        //  Empieza con la estrategia de farmeo intenso
+        private EstOfensiva ofensiva;
+        private EstDefensivo defensa;
+        private EstCompras economia;
+        private List<Batallon> batallones;
+
+        private int dineroSuficiente = 60000;
+
         // Última unidad creada
-        private Unit LastUnit { get; set; }
+        private Unidad LastUnit { get; set; }
 
         private void Awake()
         {
@@ -112,6 +203,8 @@ namespace es.ucm.fdi.iav.rts.g02
         {
             // Como no es demasiado costoso, vamos a tomar las listas completas en cada paso de pensamiento
             ActualizeGameElements();
+            // TODO Analisis del juego para gestionar las posibles compras
+            // TODO Mover unidades
             ShoppingManagement();
 
             #region CONTROLLER 3
@@ -290,6 +383,21 @@ namespace es.ucm.fdi.iav.rts.g02
                 //}
 
             }
+        }
+        private void gestionaCompra()
+        {
+
+        }
+
+        private void gestionaDefensa()
+        {
+            if (batallones.Count == 0) return;
+
+        }
+
+        private void gestionaAtaque()
+        {
+            if (batallones.Count == 0) return;
         }
     }
 }

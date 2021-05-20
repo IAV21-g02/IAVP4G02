@@ -28,8 +28,8 @@ namespace es.ucm.fdi.iav.rts.g02
         private int prioridadAzul = 0;
         private int prioridadVerde = 0;
 
-        private int defensaAzul = 0;
-        private int defensaAmarilla = 0;
+        public int defensaAzul = 0;
+        public int defensaAmarilla = 0;
 
         void Start()
         {
@@ -40,7 +40,7 @@ namespace es.ucm.fdi.iav.rts.g02
             cambiaCasillaColor();
         }
 
-        public void modificaInfluenciaAlEntrar(Type teamType_, Unit unit_, int infl_)
+        public void modificaInfluenciaAlEntrar(Type teamType_, Unidad unit_, int infl_)
         {
             if (prioridadMilitar < 0)
             {
@@ -51,7 +51,7 @@ namespace es.ucm.fdi.iav.rts.g02
             if (teamType_.Equals(team_) || team_.Equals(Type.NEUTRAL) || team_.Equals(Type.VACIA))
             {
                 //si es una unidad militar
-                if (unit_.Equals(Unit.MILITAR))
+                if (unit_.Equals(Unidad.MILITAR))
                 {
                     //la casilla en cualquier caso es del equipo de la unidad
                     team_ = teamType_;
@@ -77,7 +77,7 @@ namespace es.ucm.fdi.iav.rts.g02
             else if (!teamType_.Equals(team_))
             {
                 //es una unidad Militar
-                if (unit_.Equals(Unit.MILITAR))
+                if (unit_.Equals(Unidad.MILITAR))
                 {
                     //cogemos el team con mayor influencia en la casilla
                     team_ = getMayorInfluenciaEnCasilla();
@@ -105,7 +105,7 @@ namespace es.ucm.fdi.iav.rts.g02
             }
         }
 
-        public void modificaInfluenciaAlSalir(Type teamType_, Unit unit_, int infl_)
+        public void modificaInfluenciaAlSalir(Type teamType_, Unidad unit_, int infl_)
         {
             if (prioridadMilitar < 0)
             {
@@ -116,7 +116,7 @@ namespace es.ucm.fdi.iav.rts.g02
             if (teamType_.Equals(team_) || team_.Equals(Type.NEUTRAL))
             {
                 //si es militar
-                if (unit_.Equals(Unit.MILITAR))
+                if (unit_.Equals(Unidad.MILITAR))
                 {
                     team_ = getMayorInfluenciaEnCasilla();
 
@@ -147,7 +147,7 @@ namespace es.ucm.fdi.iav.rts.g02
             else if (!teamType_.Equals(team_))
             {
                 //si soy de defensa
-                if (!unit_.Equals(Unit.MILITAR))
+                if (!unit_.Equals(Unidad.MILITAR))
                 {
                     switch (teamType_)
                     {
@@ -172,21 +172,21 @@ namespace es.ucm.fdi.iav.rts.g02
             {
                 case Type.AMARILLO:
                     unidadesAmarillas.Add(unit_);
-                    if (unit_.unit.Equals(Unit.MILITAR))
+                    if (unit_.unit.Equals(Unidad.MILITAR))
                     {
                         prioridadAmarilla += influ;
                     }
                     break;
                 case Type.VERDE:
                     unidadesVerdes.Add(unit_);
-                    if (unit_.unit.Equals(Unit.MILITAR))
+                    if (unit_.unit.Equals(Unidad.MILITAR))
                     {
                         prioridadVerde += influ;
                     }
                     break;
                 case Type.AZUL:
                     unidadesAzules.Add(unit_);
-                    if (unit_.unit.Equals(Unit.MILITAR))
+                    if (unit_.unit.Equals(Unidad.MILITAR))
                     {
                         prioridadAzul += influ;
                     }
@@ -231,21 +231,21 @@ namespace es.ucm.fdi.iav.rts.g02
             {
                 case Type.AMARILLO:
                     unidadesAmarillas.Remove(unit_);
-                    if (unit_.unit.Equals(Unit.MILITAR))
+                    if (unit_.unit.Equals(Unidad.MILITAR))
                     {
                         prioridadAmarilla -= influ;
                     }
                     break;
                 case Type.VERDE:
                     unidadesVerdes.Remove(unit_);
-                    if (unit_.unit.Equals(Unit.MILITAR))
+                    if (unit_.unit.Equals(Unidad.MILITAR))
                     {
                         prioridadVerde -= influ;
                     }
                     break;
                 case Type.AZUL:
                     unidadesAzules.Remove(unit_);
-                    if (unit_.unit.Equals(Unit.MILITAR))
+                    if (unit_.unit.Equals(Unidad.MILITAR))
                     {
                         prioridadAzul -= influ;
                     }

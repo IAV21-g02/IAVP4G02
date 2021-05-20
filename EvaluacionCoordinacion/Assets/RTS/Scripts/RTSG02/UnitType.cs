@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace es.ucm.fdi.iav.rts.g02
 {
-    public enum Unit
+    public enum Unidad
     {
         MILITAR,DEFENSA
     }
@@ -13,7 +13,7 @@ namespace es.ucm.fdi.iav.rts.g02
         [Tooltip("Dueño de esta unidad")]
         public Type unitOwner;
         [Tooltip("Tipo de unidad")]
-        public Unit unit;
+        public Unidad unit;
         [Tooltip("Cantidad de puntos de influencia de esta unidad")]
         public int influencia;
         [Tooltip("Rango de influencia de esta unidad")]
