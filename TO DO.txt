@@ -1,0 +1,12 @@
+To do
+lectura del mapa:
+Tendremos dos formas de leer el mapa, una para la informacion de nuestra defensa y otra para la de nuestro ataque-
+DEFENSA:
+Para la defensa se leerá el mapa de la siguiente forma:
+recorreremos todos los objetos que queremos defender(la base, las unidades extractoras, las instalaciones de procesamiento)que estaran previamente metidos en una lista.
+Para cada una de ellos, primero encontraremos su casilla correspondiente en el mapa de influencia,
+despues recorreremos un rango alrededor (mirar imagen1) y comprobaremos la prioridad de defensa de esa región y la prioridad de ataque enemiga de esa región. Despues compararemos ambas cifras y en base a eso decidiremos la prioridad total de la region y se mete en la cola de prioridad de la defensa.
+Prioridad total = prioridad de defensa + prioridad de ataque del enemigo
+
+
+ATAQUE: segun se va creando el mapa, se van guardando en la cola de prioridad las casillas con las prioridades mas altas(de momento las centrales para simplificar), para luego saber a que objetivo atacar primero, si a los mas o a los menos prioritarios
