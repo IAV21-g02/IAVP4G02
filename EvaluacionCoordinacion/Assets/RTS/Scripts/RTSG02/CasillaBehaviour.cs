@@ -1,11 +1,45 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 
 namespace es.ucm.fdi.iav.rts.g02
 {
-    public class CasillaBehaviour : MonoBehaviour
+
+    public class CasillaPrio : IComparable<CasillaPrio>
+    {
+        CasillaBehaviour casilla;
+        public CasillaPrio(CasillaBehaviour other)
+        {
+            casilla = other;
+        }
+        public int CompareTo(CasillaPrio other)
+        {
+            int result = casilla.prioridadMilitar - other.casilla.prioridadMilitar;
+            if (this.Equals(other) && result == 0)
+                return 0;
+            else return result;
+        }
+
+        public bool Equals(CasillaPrio other)
+        {
+            return (this.Equals(other) && this.casilla.Equals(other));
+        }
+
+        public override bool Equals(object obj)
+        {
+            CasillaBehaviour other = (CasillaBehaviour)obj;
+            return Equals(other);
+        }
+
+        //public override int GetHashCode()
+        //{           
+        //    return this
+        //}
+    }
+
+    public class CasillaBehaviour :   MonoBehaviour
     {
         //  Representa al equipo que domina esta casilla
         public Type team_;
@@ -30,6 +64,15 @@ namespace es.ucm.fdi.iav.rts.g02
 
         public int defensaAzul = 0;
         public int defensaAmarilla = 0;
+
+        //public CasillaBehaviour(Comando cmd_, Transform objetivo_, int prio_)
+        //{
+        //    this.actMision = cmd_;
+        //    this.objetivo = objetivo_;
+        //    this.prio = prio_;
+        //}
+
+
 
         void Start()
         {

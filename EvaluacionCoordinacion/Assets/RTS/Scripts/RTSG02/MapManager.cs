@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -20,7 +19,10 @@ namespace es.ucm.fdi.iav.rts.g02
         private CasillaBehaviour[,] matriz;
         //  instancia estática de mapManager
         private static MapManager instance_;
-
+        //  Cola de prioridad de enemigos en el map
+        private Priority_Queue<CasillaPrio> prioCasillas;
+        //
+        private List<CasillaBehaviour> casillasADefender;
 
         private void Awake()
         {
@@ -117,6 +119,56 @@ namespace es.ucm.fdi.iav.rts.g02
             }
 
 
+        }
+
+        public Priority_Queue<CasillaPrio> getMayorCasillaPrio()
+        {
+            return prioCasillas;
+        }
+
+        // BETA
+        public Transform getPosADefender(Team team)
+        {
+            CasillaBehaviour casillaADef = null;
+            int prioAtaque = 0;
+            int prioDef = 0;
+            int actPrioDef = 0;
+            int areaRevisar = 3;
+            foreach (CasillaBehaviour casilla in casillasADefender)
+            {
+                switch (team.myTeam())
+                {
+                    case Type.AZUL:
+                        actPrioDef = casilla.defensaAzul;
+                        break;
+                    case Type.AMARILLO:
+                        actPrioDef = casilla.defensaAmarilla;
+                        break;
+                }
+                if (getPrioAtaque(casilla, areaRevisar, team) > prioAtaque && prioDef > actPrioDef ) 
+                {
+                    casillaADef = casilla;
+                }
+            }
+            return casillaADef.transform;
+        }
+
+
+        //BETA
+        private int getPrioAtaque(CasillaBehaviour casilla, int area,Team team)
+        {
+            int prio = 0;
+            for (int i = casilla.getFila() - area; i < casilla.getFila() + area; i++) 
+            {
+                for (int j = casilla.getCol() - area; j < casilla.getCol() + area; j++)
+                {
+                    if (casilla.team_ != team.myTeam())
+                    {
+                        prio += matriz[i, j].prioridadMilitar;
+                    }
+                }
+            }
+            return prio;
         }
     }
 };

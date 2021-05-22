@@ -1,24 +1,111 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 
 namespace es.ucm.fdi.iav.rts.g02
 {
+    class Mision : IComparable<Mision>
+    {
+        // misión que debe cumplir este batallon
+        Comando actMision;
+        //  Transform de la posición a la que ir
+        Transform objetivo;
+        //  Priridad
+        int prio;
+        public Mision(Comando cmd_ , Transform objetivo_ ,int prio_)
+        {
+            this.actMision = cmd_;
+            this.objetivo = objetivo_;
+            this.prio = prio_;
+        }
 
+        public int CompareTo(Mision other)
+        {
+            int result = prio - other.prio;
+
+            if (this.actMision.Equals(other.actMision) && this.objetivo.Equals(other.objetivo) && result == 0)
+                return 0;
+            else return result;
+        }
+
+        public bool Equals(Mision other)
+        {
+            return (this.actMision.Equals(other.actMision) && this.objetivo.Equals(other.objetivo) && this.prio.Equals(other.prio));
+        }
+
+        public override bool Equals(object obj)
+        {
+            Mision other = (Mision)obj;
+            return Equals(other);
+        }
+
+        //public override int GetHashCode()
+        //{           
+        //    return this
+        //}
+    }
     struct Batallon
     {
+        //  Número de exploradores que necesita este batallón
         public int numeroExploradores;
+        //  Número de destructores que necesita este batallón
         public int numeroDestructores;
+        //  Número de extractores que necesita este batallón
         public int numeroExtractores;
+
+        //  Lista de extractores de este batallon
         List<ExtractionUnit> extractores;
+        //  Lista de extractores de este batallon
         List<DestructionUnit> destructores;
+        //  Lista de extractores de este batallon
         List<ExplorationUnit> exploradores;
-        comando ofensiva;
-        EstDefensivo defensa;
+
+        //  Misión de este batallon
+        Mision mision;
+        //  Tipo de batallon
         TipoBatallon tipoBatallon;
+        //  Determina si este batallon termino de construirse
         public bool completado;
+        //  Determina si este batallon está en producción
         public bool construyendo;
+        //  Determina si este batallon está en una misión
+        public bool enMision;
+
+        //  Construye un batallon en función de un tipo de batallón
+        public void creaBatallon(TipoBatallon tipoBatallon_)
+        {
+            tipoBatallon = tipoBatallon_;
+            construyendo = true;
+            completado = false;
+            enMision = false;
+
+            extractores = new List<ExtractionUnit>();
+            destructores = new List<DestructionUnit>();
+            exploradores = new List<ExplorationUnit>();
+
+            switch (tipoBatallon_)
+            {
+                case TipoBatallon.BatallonTiwardo:
+                    numeroDestructores = 2;
+                    numeroExploradores = 0;
+                    numeroExtractores = 0;
+                    break;
+                case TipoBatallon.BatallonDobleDesayuno:
+                    numeroDestructores = 1;
+                    numeroExploradores = 2;
+                    numeroExtractores = 0;
+                    break;
+                case TipoBatallon.BatallonAurgar:
+                    numeroDestructores = 0;
+                    numeroExploradores = 2;
+                    numeroExtractores = 0;
+                    break;
+                default:
+                    break;
+            }
+        }
 
         public void agregaUnidad(DestructionUnit unidad)
         {
@@ -33,15 +120,34 @@ namespace es.ucm.fdi.iav.rts.g02
             exploradores.Add(unidad);
         }
 
-        public void Batallon(TipoBatallon tipoBatallon)
+        //  Asigna una nueva misión a un batallón
+        public void asignaMision(Mision nueMision)
         {
-            switch (tipoBatallon)
+            mision = nueMision;
+            enMision = true;
+        }
+
+        // desmonta un batallón para agregarlo a una lista de unidades sin batallón
+        private void desmontarBatallon(List<Unit> unidadesSinBatallon)
+        {
+            foreach (ExtractionUnit unit_ in extractores)
             {
-                case TipoBatallon.BatallonTiwardo:
-                    breack;
+                unidadesSinBatallon.Add(unit_);
+                extractores.Remove(unit_);
+            }
+
+            foreach (DestructionUnit unit_ in destructores)
+            {
+                unidadesSinBatallon.Add(unit_);
+                destructores.Remove(unit_);
+            }
+
+            foreach (ExplorationUnit unit_ in exploradores)
+            {
+                unidadesSinBatallon.Add(unit_);
+                exploradores.Remove(unit_);
             }
         }
-        
     }
 
     public enum TipoBatallon
@@ -51,19 +157,19 @@ namespace es.ucm.fdi.iav.rts.g02
         //  Dos exploradores y un destructor
         BatallonDobleDesayuno,
         //  Dos exploradores
-        BatallonAurgar,
-        
-
+        BatallonAurgar, //...
     }
 
     //  Estado que se encarga de gestionar la ofensiva de la IA
-    public enum comando
+    public enum Comando
     {   
         //  Comandos de caracter ofensivo
         //  Ataque directo al nexo
         AtaqueAlNexo,
-        //  Ataque a todo lo que este cercano a una melange(mina)
-        AtaqueMelange,
+        //  Ataque a todo lo que este cercano a una melange(mina) con mayor prio
+        AtaqueMelangeMayorPrio,
+        //  Ataque a todo lo que este cercano a una melange(mina) con menor prio
+        AtaqueMelangeMenorPrio,
         //  Ataque directo a la factoria
         AtaqueFactoria,
         //  Ataque a una concentración de prioridad alta enemiga
@@ -73,7 +179,7 @@ namespace es.ucm.fdi.iav.rts.g02
         //  Ataque a una concetración de menor prioridad enemiga
         AtaqueMenorPrio,
         //  No hacer nada
-        Festivo
+        Festivo,
 
         //  Comandos de caracter defensivo
         //  Defiende una mina y ataca a todo lo que se acerque
@@ -88,13 +194,8 @@ namespace es.ucm.fdi.iav.rts.g02
         Patrulla,
     }
 
-    //  Estado que se encarga de gestionar la defensiva de la IA
-    public enum EstDefensivo
-    {
-    }
-
     //  Estado que se encarga de gestionar las compras de la IA
-    public enum EstCompras
+    public enum UnidadAComprar
     {
         Extractor,
         Exploradores,
@@ -143,11 +244,15 @@ namespace es.ucm.fdi.iav.rts.g02
         // Número de paso de pensamiento 
         private int ThinkStepNumber { get; set; } = 0;
 
-        //  Empieza con la estrategia de farmeo intenso
-        private comando ofensiva;
-        private EstDefensivo defensa;
-        private EstCompras economia;
+
+        private UnidadAComprar unidadAComprar;
+        //  Lista de batallones disponibles
         private List<Batallon> batallones;
+        //  Lista de misiones a completar
+        private Priority_Queue<Mision> misiones;
+        
+        //  Unidades que no tienen un batallon asignado
+        private List<Unit> unidadesSinBatallon;
 
         private int dineroSuficiente = 60000;
 
@@ -210,6 +315,10 @@ namespace es.ucm.fdi.iav.rts.g02
             //Pasamos a AIGameLoop()
             ThinkStepNumber++;
 
+            batallones = new List<Batallon>();
+            unidadesSinBatallon = new List<Unit>();
+            misiones = new Priority_Queue<Mision>();
+
             // Construyo por primera vez el mapa de influencia (con las 'capas' que necesite)
             // ...
             //¿TO DO:?
@@ -218,10 +327,15 @@ namespace es.ucm.fdi.iav.rts.g02
         //TO DO: pueeees, todo, pa que nos vamos a engañar :D
         private void AIGameLoop()
         {
+            //TO DO:Mirar el mapa de influencia y ver que tareas necesitamos hacer con nuestros batallones
+
             // Como no es demasiado costoso, vamos a tomar las listas completas en cada paso de pensamiento
             ActualizeGameElements();
-            // TODO Analisis del juego para gestionar las posibles compras
-            // TODO Mover unidades
+            
+            //TO DO:Actualizar tareas que estan realizando nuestros batallones y reasignarselas si es necesario
+
+
+            //TO DO: Si nos han sobrado tareas por realizar, tratamos de comprar mas batallones para encargarles dichas tareas
             ShoppingManagement();
 
             #region CONTROLLER 3
@@ -405,45 +519,17 @@ namespace es.ucm.fdi.iav.rts.g02
         //  Compra la unidad predefinida
         private void compraUnidad()
         {
-            switch (economia)
-            {
-                case EstCompras.Destrucrotor
-            }
+            //switch (economia)
+            //{
+            //    case EstCompras.Destrucrotor
+            //}
 
         }
 
         //  Determina qué unidad comprar
         private void gestionaCompra()
         {
-            // Extractores
-
-            if (defensa == EstDefensivo.)
-            {
-                
-            }
-
-            //Si tenemos menos extractores del minimo deseado priorizamos el construirlos
-            if ( MisExtractores.Count < minDesiredExtractors &&           //  Tengo menos extractores del mínimo
-                RTSGameManager.Instance.GetMoney(MyIndex) > RTSGameManager.Instance.ExtractionUnitCost)
-            {
-                economia = EstCompras.Extractor;
-                //RTSGameManager.Instance.CreateUnit(this, MiBase[0], RTSGameManager.UnitType.EXTRACTION);
-            }
-
-            //Lo mismo con los destructores
-            else if (MisDestructores.Count < minDesiredDestructors && RTSGameManager.Instance.GetMoney(MyIndex) > RTSGameManager.Instance.DestructionUnitCost)
-            {
-                RTSGameManager.Instance.CreateUnit(this, MiBase[0], RTSGameManager.UnitType.DESTRUCTION);
-            }
-
-            //Lo mismo con los Exploradores
-            else if (MisExploradores.Count < minDesiredExplorers && RTSGameManager.Instance.GetMoney(MyIndex) > RTSGameManager.Instance.ExplorationUnitCost)
-            {
-                RTSGameManager.Instance.CreateUnit(this, MiBase[0], RTSGameManager.UnitType.EXPLORATION);
-            }
-
-
-
+            enEmergencia();
 
             if (MisExploradores.Count < ExploradoresEnemigos.Count + 2 && RTSGameManager.Instance.GetMoney(MyIndex) > RTSGameManager.Instance.ExplorationUnitCost
                 && MisExploradores.Count < RTSGameManager.Instance.ExplorationUnitsMax)
@@ -467,6 +553,29 @@ namespace es.ucm.fdi.iav.rts.g02
         private void gestionaAtaque()
         {
             if (batallones.Count == 0) return;
+        }
+
+        private void enEmergencia()
+        {
+            //Si tenemos menos extractores del minimo deseado priorizamos el construirlos
+            if (MisExtractores.Count < minDesiredExtractors &&           //  Tengo menos extractores del mínimo
+                RTSGameManager.Instance.GetMoney(MyIndex) > RTSGameManager.Instance.ExtractionUnitCost)
+            {
+                RTSGameManager.Instance.CreateUnit(this, MiBase[0], RTSGameManager.UnitType.EXTRACTION);
+            }
+
+            //Lo mismo con los destructores
+            else if (MisDestructores.Count < minDesiredDestructors && 
+                RTSGameManager.Instance.GetMoney(MyIndex) > RTSGameManager.Instance.DestructionUnitCost)
+            {
+                RTSGameManager.Instance.CreateUnit(this, MiBase[0], RTSGameManager.UnitType.DESTRUCTION);
+            }
+
+            //Lo mismo con los Exploradores
+            else if (MisExploradores.Count < minDesiredExplorers && RTSGameManager.Instance.GetMoney(MyIndex) > RTSGameManager.Instance.ExplorationUnitCost)
+            {
+                RTSGameManager.Instance.CreateUnit(this, MiBase[0], RTSGameManager.UnitType.EXPLORATION);
+            }
         }
     }
 }
