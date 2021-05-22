@@ -14,7 +14,7 @@ namespace es.ucm.fdi.iav.rts.g02
         List<ExtractionUnit> extractores;
         List<DestructionUnit> destructores;
         List<ExplorationUnit> exploradores;
-        EstOfensiva ofensiva;
+        comando ofensiva;
         EstDefensivo defensa;
         TipoBatallon tipoBatallon;
         public bool completado;
@@ -32,6 +32,16 @@ namespace es.ucm.fdi.iav.rts.g02
         {
             exploradores.Add(unidad);
         }
+
+        public void Batallon(TipoBatallon tipoBatallon)
+        {
+            switch (tipoBatallon)
+            {
+                case TipoBatallon.BatallonTiwardo:
+                    breack;
+            }
+        }
+        
     }
 
     public enum TipoBatallon
@@ -42,12 +52,14 @@ namespace es.ucm.fdi.iav.rts.g02
         BatallonDobleDesayuno,
         //  Dos exploradores
         BatallonAurgar,
+        
 
     }
 
     //  Estado que se encarga de gestionar la ofensiva de la IA
-    public enum EstOfensiva
-    {
+    public enum comando
+    {   
+        //  Comandos de caracter ofensivo
         //  Ataque directo al nexo
         AtaqueAlNexo,
         //  Ataque a todo lo que este cercano a una melange(mina)
@@ -60,13 +72,10 @@ namespace es.ucm.fdi.iav.rts.g02
         AtaqueNeutral,
         //  Ataque a una concetración de menor prioridad enemiga
         AtaqueMenorPrio,
-        //  
+        //  No hacer nada
         Festivo
-    }
 
-    //  Estado que se encarga de gestionar la defensiva de la IA
-    public enum EstDefensivo
-    {
+        //  Comandos de caracter defensivo
         //  Defiende una mina y ataca a todo lo que se acerque
         DefiendeRecurso,
         //  Defiende a la base
@@ -79,12 +88,20 @@ namespace es.ucm.fdi.iav.rts.g02
         Patrulla,
     }
 
+    //  Estado que se encarga de gestionar la defensiva de la IA
+    public enum EstDefensivo
+    {
+    }
+
     //  Estado que se encarga de gestionar las compras de la IA
     public enum EstCompras
     {
         Extractor,
         Exploradores,
         Destructores,
+        //no comprar nada
+        Ahorrar,
+        Emergencia
     }
 
 
@@ -127,7 +144,7 @@ namespace es.ucm.fdi.iav.rts.g02
         private int ThinkStepNumber { get; set; } = 0;
 
         //  Empieza con la estrategia de farmeo intenso
-        private EstOfensiva ofensiva;
+        private comando ofensiva;
         private EstDefensivo defensa;
         private EstCompras economia;
         private List<Batallon> batallones;
@@ -384,8 +401,60 @@ namespace es.ucm.fdi.iav.rts.g02
 
             }
         }
+
+        //  Compra la unidad predefinida
+        private void compraUnidad()
+        {
+            switch (economia)
+            {
+                case EstCompras.Destrucrotor
+            }
+
+        }
+
+        //  Determina qué unidad comprar
         private void gestionaCompra()
         {
+            // Extractores
+
+            if (defensa == EstDefensivo.)
+            {
+                
+            }
+
+            //Si tenemos menos extractores del minimo deseado priorizamos el construirlos
+            if ( MisExtractores.Count < minDesiredExtractors &&           //  Tengo menos extractores del mínimo
+                RTSGameManager.Instance.GetMoney(MyIndex) > RTSGameManager.Instance.ExtractionUnitCost)
+            {
+                economia = EstCompras.Extractor;
+                //RTSGameManager.Instance.CreateUnit(this, MiBase[0], RTSGameManager.UnitType.EXTRACTION);
+            }
+
+            //Lo mismo con los destructores
+            else if (MisDestructores.Count < minDesiredDestructors && RTSGameManager.Instance.GetMoney(MyIndex) > RTSGameManager.Instance.DestructionUnitCost)
+            {
+                RTSGameManager.Instance.CreateUnit(this, MiBase[0], RTSGameManager.UnitType.DESTRUCTION);
+            }
+
+            //Lo mismo con los Exploradores
+            else if (MisExploradores.Count < minDesiredExplorers && RTSGameManager.Instance.GetMoney(MyIndex) > RTSGameManager.Instance.ExplorationUnitCost)
+            {
+                RTSGameManager.Instance.CreateUnit(this, MiBase[0], RTSGameManager.UnitType.EXPLORATION);
+            }
+
+
+
+
+            if (MisExploradores.Count < ExploradoresEnemigos.Count + 2 && RTSGameManager.Instance.GetMoney(MyIndex) > RTSGameManager.Instance.ExplorationUnitCost
+                && MisExploradores.Count < RTSGameManager.Instance.ExplorationUnitsMax)
+            {
+                RTSGameManager.Instance.CreateUnit(this, MiBase[0], RTSGameManager.UnitType.EXPLORATION);
+            }
+            else if (MisDestructores.Count < DestructoresEnemigos.Count + 2 && RTSGameManager.Instance.GetMoney(MyIndex) > RTSGameManager.Instance.DestructionUnitCost
+                && MisDestructores.Count < RTSGameManager.Instance.DestructionUnitsMax)
+            {
+                RTSGameManager.Instance.CreateUnit(this, MiBase[0], RTSGameManager.UnitType.DESTRUCTION);
+            }
 
         }
 
