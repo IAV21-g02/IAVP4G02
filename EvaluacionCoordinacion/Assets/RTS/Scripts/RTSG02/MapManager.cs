@@ -19,10 +19,14 @@ namespace es.ucm.fdi.iav.rts.g02
         private CasillaBehaviour[,] matriz;
         //  instancia estática de mapManager
         private static MapManager instance_;
-        //  Cola de prioridad de enemigos en el map
-        private Priority_Queue<CasillaPrio> prioCasillas;
+        ////  Cola de prioridad de enemigos en el map
+        //private Priority_Queue<CasillaPrio> prioCasillas;
+        ////  Cola de prio para elehir que casilla defender
+        //private List<CasillaBehaviour> casillasADefender;
+
         //
-        private List<CasillaBehaviour> casillasADefender;
+        List<CasillaPrioMilitar> casillasAtaque = new List<CasillaPrioMilitar>();
+        List<CasillaPrioDefensa> casillasDefensa = new List<CasillaPrioDefensa>();
 
         private void Awake()
         {
@@ -42,6 +46,7 @@ namespace es.ucm.fdi.iav.rts.g02
         }
 
 
+        //  Construye las casillas
         void Start()
         {
             grid = GetComponentInParent<Grid>();
@@ -68,18 +73,12 @@ namespace es.ucm.fdi.iav.rts.g02
             }
         }
 
-        // Update is called once per frame
-        void Update()
-        {
-
-        }
-
+        //  Actualiza una casilla al entrar una unidad en ella
         public void actualizaPrioridadAlEntrar(CasillaBehaviour casilla, UnitType unit_)
         {
             casilla.unidadEntraCasilla(unit_, unit_.influencia);
+
             if (unit_.unit == Unidad.DEFENSA) return;
-
-
 
             for (int i = casilla.getFila() - unit_.rango; i <= casilla.getFila() + unit_.rango; i++)
             {
@@ -93,11 +92,9 @@ namespace es.ucm.fdi.iav.rts.g02
                     }
                 }
             }
-
-
-
         }
 
+        //  Actualiza una casilla al salir
         public void actualizaPrioridadAlSalir(CasillaBehaviour casilla, UnitType unit_)
         {
             casilla.unidadSaleCasilla(unit_, unit_.influencia);
@@ -117,16 +114,9 @@ namespace es.ucm.fdi.iav.rts.g02
                     }
                 }
             }
-
-
         }
 
-        public Priority_Queue<CasillaPrio> getMayorCasillaPrio()
-        {
-            return prioCasillas;
-        }
-
-        // BETA
+        //  BETA
         public Transform getPosADefender(Team team)
         {
             CasillaBehaviour casillaADef = null;
@@ -134,27 +124,25 @@ namespace es.ucm.fdi.iav.rts.g02
             int prioDef = 0;
             int actPrioDef = 0;
             int areaRevisar = 3;
-            foreach (CasillaBehaviour casilla in casillasADefender)
-            {
-                switch (team.myTeam())
-                {
-                    case Type.AZUL:
-                        actPrioDef = casilla.defensaAzul;
-                        break;
-                    case Type.AMARILLO:
-                        actPrioDef = casilla.defensaAmarilla;
-                        break;
-                }
-                if (getPrioAtaque(casilla, areaRevisar, team) > prioAtaque && prioDef > actPrioDef ) 
-                {
-                    casillaADef = casilla;
-                }
-            }
+            //foreach (CasillaBehaviour casilla in casillasADefender)
+            //{
+            //    switch (team.myTeam())
+            //    {
+            //        case Type.AZUL:
+            //            actPrioDef = casilla.defensaAzul;
+            //            break;
+            //        case Type.AMARILLO:
+            //            actPrioDef = casilla.defensaAmarilla;
+            //            break;
+            //    }
+            //    if (getPrioAtaque(casilla, areaRevisar, team) > prioAtaque && prioDef > actPrioDef ) 
+            //    {
+            //        casillaADef = casilla;
+            //    }
+            //}
             return casillaADef.transform;
         }
-
-
-        //BETA
+        //  BETA
         private int getPrioAtaque(CasillaBehaviour casilla, int area,Team team)
         {
             int prio = 0;
@@ -169,6 +157,67 @@ namespace es.ucm.fdi.iav.rts.g02
                 }
             }
             return prio;
+        }
+
+        public void addCasillaAtaque(CasillaPrioMilitar currCasilla)
+        {
+            if (currCasilla != null)
+            {
+                if (!casillasAtaque.Contains(currCasilla))
+                {
+                    casillasAtaque.Add(currCasilla);
+                    casillasAtaque.Sort();
+                }
+                else
+                {
+                    casillasAtaque.Sort();
+                }
+            }
+        }
+        public void removeCasillaAtaque(CasillaPrioMilitar currCasilla){
+            if (currCasilla != null && casillasAtaque.Contains(currCasilla))
+            {
+                casillasAtaque.Remove(currCasilla);
+            }
+        }
+        public void updateCasillaAtaque()
+        {
+            casillasAtaque.Sort();
+        }
+
+        public void addCasillaDefensa(CasillaPrioDefensa currCasilla)
+        {
+            if (currCasilla != null)
+            {
+                if (!casillasDefensa.Contains(currCasilla))
+                {
+                    casillasDefensa.Add(currCasilla);
+                    casillasDefensa.Sort();
+                }
+                else
+                {
+                    casillasDefensa.Sort();
+                }
+            }
+        }
+        public void removeCasillaDefensa(CasillaPrioDefensa currCasilla)
+        {
+            if (currCasilla != null && casillasDefensa.Contains(currCasilla))
+            {
+                casillasDefensa.Remove(currCasilla);
+            }
+        }
+        public void updateCasillaDefensa()
+        {
+            casillasDefensa.Sort();
+        }
+
+        //  Devuelve la casilla en función de un transform
+        public CasillaBehaviour getCasillaCercana(Transform pos)
+        {
+            int indX = (int)(pos.position.x / grid.cellSize.x);
+            int indZ = (int)(pos.position.z / grid.cellSize.z);
+            return matriz[indX, indZ];
         }
     }
 };
