@@ -10,3 +10,8 @@ Prioridad total = prioridad de defensa + prioridad de ataque del enemigo
 
 
 ATAQUE: segun se va creando el mapa, se van guardando en la cola de prioridad las casillas con las prioridades mas altas(de momento las centrales para simplificar), para luego saber a que objetivo atacar primero, si a los mas o a los menos prioritarios
+
+
+31/05
+
+Elegir estrategía en el controller, construcción de batallones y prioridades en función de las unidades enemigas.

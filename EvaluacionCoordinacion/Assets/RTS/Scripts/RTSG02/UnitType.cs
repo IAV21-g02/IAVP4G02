@@ -46,5 +46,10 @@ namespace es.ucm.fdi.iav.rts.g02
                 MapManager.getInstance().actualizaPrioridadAlSalir(casilla, this);
             }
         }
+
+        public Type getUnitType()
+        {
+            return unitOwner;
+        }
     }
 };

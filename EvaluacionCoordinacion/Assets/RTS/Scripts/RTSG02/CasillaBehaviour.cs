@@ -1,44 +1,11 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using System;
+
 
 
 namespace es.ucm.fdi.iav.rts.g02
 {
-
-    public class CasillaPrio : IComparable<CasillaPrio>
-    {
-        CasillaBehaviour casilla;
-        public CasillaPrio(CasillaBehaviour other)
-        {
-            casilla = other;
-        }
-        public int CompareTo(CasillaPrio other)
-        {
-            int result = casilla.prioridadMilitar - other.casilla.prioridadMilitar;
-            if (this.Equals(other) && result == 0)
-                return 0;
-            else return result;
-        }
-
-        public bool Equals(CasillaPrio other)
-        {
-            return (this.Equals(other) && this.casilla.Equals(other));
-        }
-
-        public override bool Equals(object obj)
-        {
-            CasillaBehaviour other = (CasillaBehaviour)obj;
-            return Equals(other);
-        }
-
-        //public override int GetHashCode()
-        //{           
-        //    return this
-        //}
-    }
-
     public class CasillaBehaviour :   MonoBehaviour
     {
         //  Representa al equipo que domina esta casilla
@@ -64,6 +31,9 @@ namespace es.ucm.fdi.iav.rts.g02
 
         public int defensaAzul = 0;
         public int defensaAmarilla = 0;
+
+        private CasillaPrioMilitar casillaPrioAtq;
+        private CasillaPrioDefensa casillaPrioDef;
 
         //public CasillaBehaviour(Comando cmd_, Transform objetivo_, int prio_)
         //{
@@ -183,8 +153,6 @@ namespace es.ucm.fdi.iav.rts.g02
                             break;
 
                     }
-
-
             }
             //si salgo de una casilla que no es de mi equipo
             else if (!teamType_.Equals(team_))
@@ -374,6 +342,28 @@ namespace es.ucm.fdi.iav.rts.g02
                 default:
                     prioridadMilitar = 0;
                     break;
+            }
+        }
+
+        public CasillaPrioMilitar getCasillaPrioMilitar()
+        {
+            return casillaPrioAtq;
+        }
+
+        public CasillaPrioDefensa getCasillaPrioDefensa()
+        {
+            return casillaPrioDef;
+        }
+
+        private void agregaPrio(Unidad unit)
+        {
+            if (unit == Unidad.DEFENSA)
+            {
+                MapManager.getInstance().addCasillaDefensa(casillaPrioDef);
+            }
+            else
+            {
+                MapManager.getInstance().addCasillaAtaque(casillaPrioAtq);
             }
         }
 

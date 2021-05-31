@@ -12,7 +12,6 @@ GameObject:
   - component: {fileID: 97787528775306061}
   - component: {fileID: 4055814221600049388}
   - component: {fileID: 1997983596145927335}
-  - component: {fileID: 7813846556480997335}
   m_Layer: 0
   m_Name: casilla
   m_TagString: Casilla
@@ -96,19 +95,3 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &7813846556480997335
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 786544053357261242}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c3cc181050dd0764a840e555d4e69ef9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  team_: 4
-  prioridadMilitar: 0
-  prioridadDefensa: 0
-  unidadesCasilla: 0
