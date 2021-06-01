@@ -6,79 +6,290 @@ using UnityEngine;
 
 namespace es.ucm.fdi.iav.rts.g02
 {
-    public class CasillaBehaviour :   MonoBehaviour
+    public class CasillaBehaviour : MonoBehaviour
     {
         //  Representa al equipo que domina esta casilla
-        public Type team_;
+        public ColorTeam team_;
         //  influencia del equipo que domina esta casilla
-        public int prioridadMilitar;
-        //  Influencia de defensa de esta casilla 
-        //public int prioridadDefensa;
+        public int currMiliPrio;
         //  Número de unidades presentes en la casilla
         public int unidadesCasilla;
+
         //  Fila que representa a esta casilla en vector de mapManager
         private int fil;
         //  Columna que representa a esta casilla en vector de mapManager
         private int col;
+
         // Array con las unidades que están en esta casilla
         private List<UnitType> unidadesAmarillas = new List<UnitType>();
         private List<UnitType> unidadesVerdes = new List<UnitType>();
         private List<UnitType> unidadesAzules = new List<UnitType>();
 
+        //Prioridad total de las unidades amarillas
         private int prioridadAmarilla = 0;
+        //Prioridad total de las unidades azules
         private int prioridadAzul = 0;
+        //Prioridad total de las unidades verdes
         private int prioridadVerde = 0;
 
-        public int defensaAzul = 0;
-        public int defensaAmarilla = 0;
+        private int defensaAzul = 0;
+        private int defensaAmarilla = 0;
 
-        private CasillaPrioMilitar casillaPrioAtq;
+        private CasillaPrioAtaque casillaPrioAtq;
         private CasillaPrioDefensa casillaPrioDef;
 
-        //public CasillaBehaviour(Comando cmd_, Transform objetivo_, int prio_)
-        //{
-        //    this.actMision = cmd_;
-        //    this.objetivo = objetivo_;
-        //    this.prio = prio_;
-        //}
-
-
-
-        void Start()
+        private void Start()
         {
-            prioridadMilitar = 0;
-            // prioridadDefensa = 0;
+            currMiliPrio = 0;
+
             unidadesCasilla = 0;
-            team_ = Type.VACIA;
-            cambiaCasillaColor();
+            team_ = ColorTeam.VACIA;
+            
+
+            CambiaCasillaColor();
+ 
+            //Datos de prioridad y ataque IComparer
+            casillaPrioAtq = new CasillaPrioAtaque(this);
+            casillaPrioDef= new CasillaPrioDefensa(this);
         }
 
-        public void modificaInfluenciaAlEntrar(Type teamType_, Unidad unit_, int infl_)
+        private void OnTriggerEnter(Collider other)
         {
-            if (prioridadMilitar < 0)
+            UnitType unit = other.gameObject.GetComponent<UnitType>();
+            if (unit)
             {
-                prioridadMilitar = 0;
+                MapManager.GetInstance().ActualizaPrioridadAlEntrar(this, unit);
+            }
+        }
+
+        private void OnTriggerExit(Collider other)
+        {
+            UnitType unit = other.gameObject.GetComponent<UnitType>();
+            if (unit)
+            {
+                MapManager.GetInstance().ActualizaPrioridadAlSalir(this, unit);
+            }
+        }
+
+        //----------------------------------------------------------------------------------//
+
+        //  Gestiona la entrada de una unidad a esta casilla
+        public void UnidadEntraCasilla(UnitType unit_, int influ)
+        {
+            switch (unit_.unitOwner)
+            {
+                case ColorTeam.AMARILLO:
+                    unidadesAmarillas.Add(unit_);
+                    if (unit_.unit.Equals(Unidad.MILITAR))
+                    {
+                        prioridadAmarilla += influ;
+                    }
+                    break;
+                case ColorTeam.VERDE:
+                    unidadesVerdes.Add(unit_);
+                    if (unit_.unit.Equals(Unidad.MILITAR))
+                    {
+                        prioridadVerde += influ;
+                    }
+                    break;
+                case ColorTeam.AZUL:
+                    unidadesAzules.Add(unit_);
+                    if (unit_.unit.Equals(Unidad.MILITAR))
+                    {
+                        prioridadAzul += influ;
+                    }
+                    break;
+                default:
+                    currMiliPrio = 0;
+                    break;
+            }
+            ModificaInfluenciaAlEntrar(unit_.unitOwner, unit_.unit, influ);
+            CambiaCasillaColor();
+
+        }
+
+        //  Gestiona la salida de una unidad a esta casilla
+        public void UnidadSaleCasilla(UnitType unit_, int influ)
+        {
+            switch (unit_.unitOwner)
+            {
+                case ColorTeam.AMARILLO:
+                    unidadesAmarillas.Remove(unit_);
+                    if (unit_.unit.Equals(Unidad.MILITAR))
+                    {
+                        prioridadAmarilla -= influ;
+                    }
+                    break;
+                case ColorTeam.VERDE:
+                    unidadesVerdes.Remove(unit_);
+                    if (unit_.unit.Equals(Unidad.MILITAR))
+                    {
+                        prioridadVerde -= influ;
+                    }
+                    break;
+                case ColorTeam.AZUL:
+                    unidadesAzules.Remove(unit_);
+                    if (unit_.unit.Equals(Unidad.MILITAR))
+                    {
+                        prioridadAzul -= influ;
+                    }
+                    break;
+                default:
+                    break;
             }
 
-            //si entre un de mi mismo equipo, en uno neutral o en uno vacio
-            if (teamType_.Equals(team_) || team_.Equals(Type.NEUTRAL) || team_.Equals(Type.VACIA))
+            ModificaInfluenciaAlSalir(unit_.unitOwner, unit_.unit, influ);
+            CambiaCasillaColor();
+        }
+
+        //  Configura la fila y la columan de esta casilla
+        public void setMatrixPos(int x, int y)
+        {
+            fil = x;
+            col = y;
+        }
+
+        //  Devuelve la fila que represeta a esta casilla dentro del array de casilla de MapManager
+        public int GetFila()
+        {
+            return fil;
+        }
+
+        //  Devuelve la columna que represeta a esta casilla dentro del array de casilla de MapManager
+        public int GetCol()
+        {
+            return col;
+        }
+
+        public CasillaPrioAtaque GetCasillaPrioMilitar()
+        {
+            return casillaPrioAtq;
+        }
+
+        public CasillaPrioDefensa getCasillaPrioDefensa()
+        {
+            return casillaPrioDef;
+        }
+
+        //Devuelve la prioridad de defensa actual
+        public int GetCurrDefPrio() {
+            if (team_.Equals(ColorTeam.AZUL)) return defensaAzul;
+            
+            return defensaAmarilla;
+        }
+
+        //-------------------------------------------------------------------------------------//
+
+        //Devuelve el la mejor prioridad de la casilla
+        private ColorTeam GetMayorPrio()
+        {
+
+            if (prioridadVerde == 0 && prioridadAzul == 0 && prioridadAmarilla == 0)
             {
-                //si es una unidad militar
+                return ColorTeam.VACIA;
+            }
+            else if (prioridadAmarilla > prioridadAzul && prioridadAmarilla > prioridadVerde)
+            {
+                return ColorTeam.AMARILLO;
+            }
+            else if (prioridadAzul > prioridadAmarilla && prioridadAzul > prioridadVerde)
+            {
+                return ColorTeam.AZUL;
+            }
+            else if (prioridadVerde == 0 && prioridadAzul == prioridadAmarilla)
+            {
+                return ColorTeam.NEUTRAL;
+            }
+            else
+            {
+                return ColorTeam.VERDE;
+            }
+        }
+
+        //  Configura el color que le corresponde según que equipo domina esta casilla
+        private void CambiaCasillaColor()
+        {
+            Color cl = Color.red;
+            switch (team_)
+            {
+                case ColorTeam.AMARILLO:
+                    cl = Color.yellow;
+                    break;
+                case ColorTeam.AZUL:
+                    cl = Color.blue;
+                    break;
+                case ColorTeam.VERDE:
+                    cl = Color.green;
+                    break;
+                case ColorTeam.NEUTRAL:
+                    cl = Color.gray;
+                    break;
+                case ColorTeam.VACIA:
+                    cl = Color.white;
+                    break;
+                default:
+                    break;
+            }
+
+            cl.a = 0.2f;
+            gameObject.GetComponent<MeshRenderer>().material.color = cl;
+        }
+
+        //Actualiza la prioridad de la casilla
+        private void ActualizaPrioridadCasilla(ColorTeam dominanUnit)
+        {
+            switch (dominanUnit)
+            {
+                case ColorTeam.AMARILLO:
+                    currMiliPrio = prioridadAmarilla;
+                    break;
+                case ColorTeam.AZUL:
+                    currMiliPrio = prioridadAzul;
+                    break;
+                case ColorTeam.VERDE:
+                    currMiliPrio = prioridadVerde;
+                    break;
+                case ColorTeam.VACIA:
+                    currMiliPrio = 0;
+                    break;
+                case ColorTeam.NEUTRAL:
+                    currMiliPrio = 0;
+                    break;
+                default:
+                    currMiliPrio = 0;
+                    break;
+            }
+        }
+
+        //Actualiza la influencia de la casilla cuando ha entrado una nueva unidad
+        private void ModificaInfluenciaAlEntrar(ColorTeam teamType_, Unidad unit_, int infl_)
+        {
+            if (currMiliPrio < 0)
+            {
+                currMiliPrio = 0;
+            }
+
+            //Si es del mismo tipo que la casilla, la casilla es neutral o está vacía
+            if (teamType_.Equals(team_) || team_.Equals(ColorTeam.NEUTRAL) || team_.Equals(ColorTeam.VACIA))
+            {
+                //Si es una unidad militar
                 if (unit_.Equals(Unidad.MILITAR))
                 {
-                    //la casilla en cualquier caso es del equipo de la unidad
+                    //La casilla es del equipo de la unidad entrante
                     team_ = teamType_;
+
                     //Actualizamos valor de la prioridadMilitar
-                    actualizaPrioridadMilitar(team_);
+                    ActualizaPrioridadCasilla(team_);
                 }
+                //Si es una unidad de defensa
                 else
-                {// si es de defensa
+                {
                     switch (teamType_)
                     {
-                        case Type.AMARILLO:
+                        case ColorTeam.AMARILLO:
                             defensaAmarilla += infl_;
                             break;
-                        case Type.AZUL:
+                        case ColorTeam.AZUL:
                             defensaAzul += infl_;
                             break;
 
@@ -86,31 +297,29 @@ namespace es.ucm.fdi.iav.rts.g02
                 }
 
             }
-            //si no es de tu equipo
+            //Si no es del mismo equipo
             else if (!teamType_.Equals(team_))
             {
                 //es una unidad Militar
                 if (unit_.Equals(Unidad.MILITAR))
                 {
                     //cogemos el team con mayor influencia en la casilla
-                    team_ = getMayorInfluenciaEnCasilla();
+                    team_ = GetMayorPrio();
 
                     //si la casilla esta vacia o es neutral la prioridad militar es cero
-                    if (team_.Equals(Type.VACIA) || team_.Equals(Type.NEUTRAL))
+                    if (team_.Equals(ColorTeam.VACIA) || team_.Equals(ColorTeam.NEUTRAL))
                     {
-                        prioridadMilitar = 0;
+                        currMiliPrio = 0;
                     }
-                    //Si no actualizamos la prioridad militar segun cual equipo es el dominante
-                    else actualizaPrioridadMilitar(team_);
-                    
+                    else ActualizaPrioridadCasilla(team_);
                 }
                 else
                     switch (teamType_)
                     {
-                        case Type.AMARILLO:
+                        case ColorTeam.AMARILLO:
                             defensaAmarilla += infl_;
                             break;
-                        case Type.AZUL:
+                        case ColorTeam.AZUL:
                             defensaAzul += infl_;
                             break;
 
@@ -118,37 +327,38 @@ namespace es.ucm.fdi.iav.rts.g02
             }
         }
 
-        public void modificaInfluenciaAlSalir(Type teamType_, Unidad unit_, int infl_)
+        //Actualiza la influencia de la casilla cuando ha salida una unidad
+        private void ModificaInfluenciaAlSalir(ColorTeam teamType_, Unidad unit_, int infl_)
         {
-            if (prioridadMilitar < 0)
+            if (currMiliPrio < 0)
             {
-                prioridadMilitar = 0;
+                currMiliPrio = 0;
             }
 
             // si salgo en una casilla de mi equipo o neutral
-            if (teamType_.Equals(team_) || team_.Equals(Type.NEUTRAL))
+            if (teamType_.Equals(team_) || team_.Equals(ColorTeam.NEUTRAL))
             {
                 //si es militar
                 if (unit_.Equals(Unidad.MILITAR))
                 {
-                    team_ = getMayorInfluenciaEnCasilla();
+                    team_ = GetMayorPrio();
 
-                    if (team_.Equals(Type.NEUTRAL) || teamType_.Equals(Type.VACIA))
+                    if (team_.Equals(ColorTeam.NEUTRAL) || teamType_.Equals(ColorTeam.VACIA))
                     {
-                        prioridadMilitar = 0;
+                        currMiliPrio = 0;
                     }
                     else
                     {
-                        actualizaPrioridadMilitar(team_);
+                        ActualizaPrioridadCasilla(team_);
                     }
                 }
                 else// si soy de defensa
                     switch (teamType_)
                     {
-                        case Type.AMARILLO:
+                        case ColorTeam.AMARILLO:
                             defensaAmarilla -= infl_;
                             break;
-                        case Type.AZUL:
+                        case ColorTeam.AZUL:
                             defensaAzul -= infl_;
                             break;
 
@@ -162,10 +372,10 @@ namespace es.ucm.fdi.iav.rts.g02
                 {
                     switch (teamType_)
                     {
-                        case Type.AMARILLO:
+                        case ColorTeam.AMARILLO:
                             defensaAmarilla -= infl_;
                             break;
-                        case Type.AZUL:
+                        case ColorTeam.AZUL:
                             defensaAzul -= infl_;
                             break;
 
@@ -174,197 +384,6 @@ namespace es.ucm.fdi.iav.rts.g02
 
             }
 
-        }
-
-        //  Gestiona la entrada de una unidad a esta casilla
-        public void unidadEntraCasilla(UnitType unit_, int influ)
-        {
-            switch (unit_.unitOwner)
-            {
-                case Type.AMARILLO:
-                    unidadesAmarillas.Add(unit_);
-                    if (unit_.unit.Equals(Unidad.MILITAR))
-                    {
-                        prioridadAmarilla += influ;
-                    }
-                    break;
-                case Type.VERDE:
-                    unidadesVerdes.Add(unit_);
-                    if (unit_.unit.Equals(Unidad.MILITAR))
-                    {
-                        prioridadVerde += influ;
-                    }
-                    break;
-                case Type.AZUL:
-                    unidadesAzules.Add(unit_);
-                    if (unit_.unit.Equals(Unidad.MILITAR))
-                    {
-                        prioridadAzul += influ;
-                    }
-                    break;
-                default:
-                    prioridadMilitar = 0;
-                    break;
-            }
-            modificaInfluenciaAlEntrar(unit_.unitOwner, unit_.unit, influ);
-            cambiaCasillaColor();
-
-        }
-
-        private Type getMayorInfluenciaEnCasilla()
-        {
-
-            if (prioridadVerde == 0 && prioridadAzul == 0 && prioridadAmarilla == 0)
-            {
-                return Type.VACIA;
-            }
-            else if (prioridadAmarilla > prioridadAzul && prioridadAmarilla > prioridadVerde)
-            {
-                return Type.AMARILLO;
-            }
-            else if (prioridadAzul > prioridadAmarilla && prioridadAzul > prioridadVerde)
-            {
-                return Type.AZUL;
-            }
-            else if (prioridadVerde == 0 && prioridadAzul == prioridadAmarilla)
-            {
-                return Type.NEUTRAL;
-            }
-            else
-            {
-                return Type.VERDE;
-            }
-        }
-        //  Gestiona la salida de una unidad a esta casilla
-        public void unidadSaleCasilla(UnitType unit_, int influ)
-        {
-            switch (unit_.unitOwner)
-            {
-                case Type.AMARILLO:
-                    unidadesAmarillas.Remove(unit_);
-                    if (unit_.unit.Equals(Unidad.MILITAR))
-                    {
-                        prioridadAmarilla -= influ;
-                    }
-                    break;
-                case Type.VERDE:
-                    unidadesVerdes.Remove(unit_);
-                    if (unit_.unit.Equals(Unidad.MILITAR))
-                    {
-                        prioridadVerde -= influ;
-                    }
-                    break;
-                case Type.AZUL:
-                    unidadesAzules.Remove(unit_);
-                    if (unit_.unit.Equals(Unidad.MILITAR))
-                    {
-                        prioridadAzul -= influ;
-                    }
-                    break;
-                default:
-                    break;
-            }
-
-            modificaInfluenciaAlSalir(unit_.unitOwner, unit_.unit, influ);
-            cambiaCasillaColor();
-        }
-
-        //  Configura la fila y la columan de esta casilla
-        public void setMatrixPos(int x, int y)
-        {
-            fil = x;
-            col = y;
-        }
-
-        //  Devuelve la fila que represeta a esta casilla dentro del array de casilla de MapManager
-        public int getFila()
-        {
-            return fil;
-        }
-
-        //  Devuelve la columna que represeta a esta casilla dentro del array de casilla de MapManager
-        public int getCol()
-        {
-            return col;
-        }
-
-        //  Configura el color que le corresponde según que equipo domina esta casilla
-        private void cambiaCasillaColor()
-        {
-            Color cl = Color.red;
-            switch (team_)
-            {
-                case Type.AMARILLO:
-                    cl = Color.yellow;
-                    break;
-                case Type.AZUL:
-                    cl = Color.blue;
-                    break;
-                case Type.VERDE:
-                    cl = Color.green;
-                    break;
-                case Type.NEUTRAL:
-                    cl = Color.gray;
-                    break;
-                case Type.VACIA:
-                    cl = Color.white;
-                    break;
-                default:
-                    break;
-            }
-
-            //cl.r = cl.r * Mathf.Abs(prioridadMilitar / 10);
-            //cl.g = cl.g * Mathf.Abs(prioridadMilitar / 10);
-            //cl.b = cl.b * Mathf.Abs(prioridadMilitar / 10);
-            cl.a = 0.2f;
-            gameObject.GetComponent<MeshRenderer>().material.color = cl;
-        }
-
-        private void actualizaPrioridadMilitar(Type dominanUnit)
-        {
-            switch (dominanUnit)
-            {
-                case Type.AMARILLO:
-                    prioridadMilitar = prioridadAmarilla;
-                    break;
-                case Type.AZUL:
-                    prioridadMilitar = prioridadAzul;
-                    break;
-                case Type.VERDE:
-                    prioridadMilitar = prioridadVerde;
-                    break;
-                case Type.VACIA:
-                    prioridadMilitar = 0;
-                    break;
-                case Type.NEUTRAL:
-                    prioridadMilitar = 0;
-                    break;
-                default:
-                    prioridadMilitar = 0;
-                    break;
-            }
-        }
-
-        public CasillaPrioMilitar getCasillaPrioMilitar()
-        {
-            return casillaPrioAtq;
-        }
-
-        public CasillaPrioDefensa getCasillaPrioDefensa()
-        {
-            return casillaPrioDef;
-        }
-
-        private void agregaPrio(Unidad unit)
-        {
-            if (unit == Unidad.DEFENSA)
-            {
-                MapManager.getInstance().addCasillaDefensa(casillaPrioDef);
-            }
-            else
-            {
-                MapManager.getInstance().addCasillaAtaque(casillaPrioAtq);
-            }
         }
 
     }

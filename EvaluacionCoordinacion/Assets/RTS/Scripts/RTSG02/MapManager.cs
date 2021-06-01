@@ -6,9 +6,9 @@ namespace es.ucm.fdi.iav.rts.g02
     public class MapManager : MonoBehaviour
     {
         //  Número de filas de este escenario
-        public int filas;
+        private int filas;
         //  Número de columnas de este escenario
-        public int columnas;
+        private int columnas;
         //  Grid del escenario
         private Grid grid;
         //  Terrain del escenario
@@ -19,14 +19,12 @@ namespace es.ucm.fdi.iav.rts.g02
         private CasillaBehaviour[,] matriz;
         //  instancia estática de mapManager
         private static MapManager instance_;
-        ////  Cola de prioridad de enemigos en el map
-        //private Priority_Queue<CasillaPrio> prioCasillas;
-        ////  Cola de prio para elehir que casilla defender
-        //private List<CasillaBehaviour> casillasADefender;
 
-        //
-        List<CasillaPrioMilitar> casillasAtaque = new List<CasillaPrioMilitar>();
-        List<CasillaPrioDefensa> casillasDefensa = new List<CasillaPrioDefensa>();
+        //Para ocultar el mapa
+        private bool visible = false;
+
+        //List<CasillaPrioAtaque> casillasAtaque = new List<CasillaPrioAtaque>();
+        //List<CasillaPrioDefensa> casillasDefensa = new List<CasillaPrioDefensa>();
 
         private void Awake()
         {
@@ -40,11 +38,10 @@ namespace es.ucm.fdi.iav.rts.g02
             }
         }
 
-        public static MapManager getInstance()
+        public static MapManager GetInstance()
         {
             return instance_;
         }
-
 
         //  Construye las casillas
         void Start()
@@ -74,146 +71,71 @@ namespace es.ucm.fdi.iav.rts.g02
         }
 
         //  Actualiza una casilla al entrar una unidad en ella
-        public void actualizaPrioridadAlEntrar(CasillaBehaviour casilla, UnitType unit_)
+        public void ActualizaPrioridadAlEntrar(CasillaBehaviour casilla, UnitType unit_)
         {
-            casilla.unidadEntraCasilla(unit_, unit_.influencia);
+            casilla.UnidadEntraCasilla(unit_, unit_.influencia);
 
             if (unit_.unit == Unidad.DEFENSA) return;
 
-            for (int i = casilla.getFila() - unit_.rango; i <= casilla.getFila() + unit_.rango; i++)
+            //Casillas adyacentes
+            for (int i = casilla.GetFila() - unit_.rango; i <= casilla.GetFila() + unit_.rango; i++)
             {
-                for (int j = casilla.getCol() - unit_.rango; j <= casilla.getCol() + unit_.rango; j++)
+                for (int j = casilla.GetCol() - unit_.rango; j <= casilla.GetCol() + unit_.rango; j++)
                 {
                     //comprobamos que no nos salimos de la matriz
                     if (i >= 0 && i < filas && j >= 0 && j < columnas && casilla != matriz[i, j])
                     {
                         //comprobamos que prioridad le corresponde
-                        matriz[i, j].unidadEntraCasilla(unit_, unit_.influencia - 1);
+                        matriz[i, j].UnidadEntraCasilla(unit_, unit_.influencia - 1);
                     }
                 }
             }
         }
 
         //  Actualiza una casilla al salir
-        public void actualizaPrioridadAlSalir(CasillaBehaviour casilla, UnitType unit_)
+        public void ActualizaPrioridadAlSalir(CasillaBehaviour casilla, UnitType unit_)
         {
-            casilla.unidadSaleCasilla(unit_, unit_.influencia);
+            casilla.UnidadSaleCasilla(unit_, unit_.influencia);
             if (unit_.unit == Unidad.DEFENSA) return;
 
             int inf = unit_.influencia - 1;
             //recorremos la submatriz correspondiente
-            for (int i = casilla.getFila() - unit_.rango; i <= casilla.getFila() + unit_.rango; i++)
+            for (int i = casilla.GetFila() - unit_.rango; i <= casilla.GetFila() + unit_.rango; i++)
             {
-                for (int j = casilla.getCol() - unit_.rango; j <= casilla.getCol() + unit_.rango; j++)
+                for (int j = casilla.GetCol() - unit_.rango; j <= casilla.GetCol() + unit_.rango; j++)
                 {
                     //comprobamos que no nos salimos de la matriz
                     if (i >= 0 && i < filas && j >= 0 && j < columnas && casilla != matriz[i, j])
                     {
                         //comprobamos que prioridad le corresponde
-                        matriz[i, j].unidadSaleCasilla(unit_, unit_.influencia - 1);
+                        matriz[i, j].UnidadSaleCasilla(unit_, unit_.influencia - 1);
                     }
                 }
             }
         }
 
-        //  BETA
-        public Transform getPosADefender(Team team)
+        private void Update()
         {
-            CasillaBehaviour casillaADef = null;
-            int prioAtaque = 0;
-            int prioDef = 0;
-            int actPrioDef = 0;
-            int areaRevisar = 3;
-            //foreach (CasillaBehaviour casilla in casillasADefender)
-            //{
-            //    switch (team.myTeam())
-            //    {
-            //        case Type.AZUL:
-            //            actPrioDef = casilla.defensaAzul;
-            //            break;
-            //        case Type.AMARILLO:
-            //            actPrioDef = casilla.defensaAmarilla;
-            //            break;
-            //    }
-            //    if (getPrioAtaque(casilla, areaRevisar, team) > prioAtaque && prioDef > actPrioDef ) 
-            //    {
-            //        casillaADef = casilla;
-            //    }
-            //}
-            return casillaADef.transform;
-        }
-        //  BETA
-        private int getPrioAtaque(CasillaBehaviour casilla, int area,Team team)
-        {
-            int prio = 0;
-            for (int i = casilla.getFila() - area; i < casilla.getFila() + area; i++) 
-            {
-                for (int j = casilla.getCol() - area; j < casilla.getCol() + area; j++)
+            if (Input.GetKeyDown(KeyCode.M)) {
+                if (visible)
                 {
-                    if (casilla.team_ != team.myTeam())
+                    for (int i = 0; i < transform.childCount; i++)
                     {
-                        prio += matriz[i, j].prioridadMilitar;
+                        transform.GetChild(i).gameObject.SetActive(false);
                     }
                 }
-            }
-            return prio;
-        }
+                else {
+                    for (int i = 0; i < transform.childCount; i++)
+                    {
+                        transform.GetChild(i).gameObject.SetActive(true);
+                    }
+                }
 
-        public void addCasillaAtaque(CasillaPrioMilitar currCasilla)
-        {
-            if (currCasilla != null)
-            {
-                if (!casillasAtaque.Contains(currCasilla))
-                {
-                    casillasAtaque.Add(currCasilla);
-                    casillasAtaque.Sort();
-                }
-                else
-                {
-                    casillasAtaque.Sort();
-                }
+                visible = !visible;
             }
         }
-        public void removeCasillaAtaque(CasillaPrioMilitar currCasilla){
-            if (currCasilla != null && casillasAtaque.Contains(currCasilla))
-            {
-                casillasAtaque.Remove(currCasilla);
-            }
-        }
-        public void updateCasillaAtaque()
-        {
-            casillasAtaque.Sort();
-        }
-
-        public void addCasillaDefensa(CasillaPrioDefensa currCasilla)
-        {
-            if (currCasilla != null)
-            {
-                if (!casillasDefensa.Contains(currCasilla))
-                {
-                    casillasDefensa.Add(currCasilla);
-                    casillasDefensa.Sort();
-                }
-                else
-                {
-                    casillasDefensa.Sort();
-                }
-            }
-        }
-        public void removeCasillaDefensa(CasillaPrioDefensa currCasilla)
-        {
-            if (currCasilla != null && casillasDefensa.Contains(currCasilla))
-            {
-                casillasDefensa.Remove(currCasilla);
-            }
-        }
-        public void updateCasillaDefensa()
-        {
-            casillasDefensa.Sort();
-        }
-
         //  Devuelve la casilla en función de un transform
-        public CasillaBehaviour getCasillaCercana(Transform pos)
+        public CasillaBehaviour GetCasillaCercana(Transform pos)
         {
             int indX = (int)(pos.position.x / grid.cellSize.x);
             int indZ = (int)(pos.position.z / grid.cellSize.z);

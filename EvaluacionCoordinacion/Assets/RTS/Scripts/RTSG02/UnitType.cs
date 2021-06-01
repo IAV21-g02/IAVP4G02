@@ -6,12 +6,13 @@ namespace es.ucm.fdi.iav.rts.g02
 {
     public enum Unidad
     {
-        MILITAR,DEFENSA
+        MILITAR, DEFENSA
     }
+
     public class UnitType : MonoBehaviour
     {
         [Tooltip("Dueño de esta unidad")]
-        public Type unitOwner;
+        public ColorTeam unitOwner;
         [Tooltip("Tipo de unidad")]
         public Unidad unit;
         [Tooltip("Cantidad de puntos de influencia de esta unidad")]
@@ -28,26 +29,7 @@ namespace es.ucm.fdi.iav.rts.g02
             rango = unitCopy.rango;
         }
 
-
-        private void OnTriggerEnter(Collider other)
-        {
-            if (other.gameObject.CompareTag("Casilla"))
-            {
-                CasillaBehaviour casilla = other.GetComponent<CasillaBehaviour>();
-                MapManager.getInstance().actualizaPrioridadAlEntrar(casilla, this);
-            }
-        }
-
-        private void OnTriggerExit(Collider other)
-        {
-            if (other.gameObject.CompareTag("Casilla"))
-            {
-                CasillaBehaviour casilla = other.GetComponent<CasillaBehaviour>();
-                MapManager.getInstance().actualizaPrioridadAlSalir(casilla, this);
-            }
-        }
-
-        public Type getUnitType()
+        public ColorTeam getUnitType()
         {
             return unitOwner;
         }

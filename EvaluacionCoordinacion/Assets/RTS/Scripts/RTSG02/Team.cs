@@ -6,10 +6,10 @@ namespace es.ucm.fdi.iav.rts.g02
 {
 
 
-public enum Type{ AZUL,AMARILLO,VERDE, NEUTRAL, VACIA }
+public enum ColorTeam{ AZUL,AMARILLO,VERDE, NEUTRAL, VACIA }
 public class Team : MonoBehaviour
 {
-    public Type team_;
+    public ColorTeam team_;
     // Start is called before the first frame update
     void Start()
     {
@@ -21,7 +21,7 @@ public class Team : MonoBehaviour
     {
         
     }
-    public Type myTeam()
+    public ColorTeam myTeam()
     {
         return team_;
     }

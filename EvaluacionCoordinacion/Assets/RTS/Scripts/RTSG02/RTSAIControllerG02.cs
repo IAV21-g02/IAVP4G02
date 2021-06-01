@@ -263,7 +263,7 @@ namespace es.ucm.fdi.iav.rts.g02
     public class RTSAIControllerG02 : RTSAIController
     {
         private int MyIndex { get; set; }
-        private Type myType;
+        private ColorTeam myType;
         //private int FirstEnemyIndex { get; set; }
         //private BaseFacility MyFirstBaseFacility { get; set; }
         //private ProcessingFacility MyFirstProcessingFacility { get; set; }
@@ -291,7 +291,7 @@ namespace es.ucm.fdi.iav.rts.g02
 
         //  
         private List<CasillaPrioDefensa> prioDefensa;
-        private List<CasillaPrioMilitar> prioMilitar;
+        private List<CasillaPrioAtaque> prioMilitar;
 
         // Las listas completas de accesos limitados y torretas 
         private List<LimitedAccess> Recursos;
@@ -640,48 +640,77 @@ namespace es.ucm.fdi.iav.rts.g02
             }
         }
 
-        public Type getMyType()
+        public ColorTeam getMyType()
         {
             return myType;
         }
 
         //  Actualiza las prioridades de defensa y ataque del mapa de influencias
-        public void gestionaPrioridades()
+        public void ActualizaPrioridades()
         {
-            prioMilitar = new List<CasillaPrioMilitar>();
+            //-------------MILICIA------------//
+            prioMilitar = new List<CasillaPrioAtaque>();
             foreach (DestructionUnit unit in DestructoresEnemigos)
             {
-                CasillaBehaviour currCasilla = MapManager.getInstance().getCasillaCercana(unit.transform);
-                if (!prioMilitar.Contains(currCasilla.getCasillaPrioMilitar()))
+                CasillaBehaviour currCasilla = MapManager.GetInstance().GetCasillaCercana(unit.transform);
+                CasillaPrioAtaque atq = currCasilla.GetCasillaPrioMilitar();
+                atq.ActualizaAtaque();
+
+                if (!prioMilitar.Contains(atq))
                 {
-                    prioMilitar.Add(currCasilla.getCasillaPrioMilitar());
+                    prioMilitar.Add(atq);
                 }
             }
 
             foreach (ExplorationUnit unit in ExploradoresEnemigos)
             {
-                CasillaBehaviour currCasilla = MapManager.getInstance().getCasillaCercana(unit.transform);
-                if (!prioMilitar.Contains(currCasilla.getCasillaPrioMilitar()))
+                CasillaBehaviour currCasilla = MapManager.GetInstance().GetCasillaCercana(unit.transform);
+                CasillaPrioAtaque atq = currCasilla.GetCasillaPrioMilitar();
+                atq.ActualizaAtaque();
+
+                if (!prioMilitar.Contains(currCasilla.GetCasillaPrioMilitar()))
                 {
-                    prioMilitar.Add(currCasilla.getCasillaPrioMilitar());
+                    prioMilitar.Add(currCasilla.GetCasillaPrioMilitar());
                 }
             }
 
-            ///////////////////////////
+            //------------DEFENSA---------------//
             prioDefensa = new List<CasillaPrioDefensa>();
             foreach (ExtractionUnit unit in MisExtractores)
             {
-                CasillaBehaviour currCasilla = MapManager.getInstance().getCasillaCercana(unit.transform);
-                if (!prioDefensa.Contains(currCasilla.getCasillaPrioDefensa()))
+                CasillaBehaviour currCasilla = MapManager.GetInstance().GetCasillaCercana(unit.transform);
+                CasillaPrioDefensa def = currCasilla.getCasillaPrioDefensa();
+                def.ActualizaDefensa();
+
+                if (!prioDefensa.Contains(def))
                 {
-                    prioDefensa.Add(currCasilla.getCasillaPrioDefensa());
+                    prioDefensa.Add(def);
                 }
             }
-            prioDefensa.Add(MapManager.getInstance().getCasillaCercana(MiBase[0].transform).getCasillaPrioDefensa());
-            prioDefensa.Add(MapManager.getInstance().getCasillaCercana(MiFactoria[0].transform).getCasillaPrioDefensa());
 
-            prioMilitar.Sort();
-            prioDefensa.Sort();
+            //Base
+            CasillaPrioDefensa defAux = MapManager.GetInstance().GetCasillaCercana(MiBase[0].transform).getCasillaPrioDefensa();
+            defAux.ActualizaDefensa();
+
+            if (!prioDefensa.Contains(defAux))
+            {
+                prioDefensa.Add(defAux);
+            }
+
+            //Factoria
+            defAux = MapManager.GetInstance().GetCasillaCercana(MiFactoria[0].transform).getCasillaPrioDefensa();
+            defAux.ActualizaDefensa();
+
+            if (!prioDefensa.Contains(defAux))
+            {
+                prioDefensa.Add(defAux);
+            }
+
+            //Ordenamiento de prioridades
+            ComparerAtaque compATQ = new ComparerAtaque();
+            prioMilitar.Sort(compATQ);
+            ComparerDef compDEF = new ComparerDef();
+            prioDefensa.Sort(compDEF);
         }
 
         private void creaMisiones()
@@ -701,7 +730,7 @@ namespace es.ucm.fdi.iav.rts.g02
                     else if (estoyPuerco && !estoyMasao) //Tengo más dinero pero tengo menos unidades
                     {
 
-                        currMision = new Mision(Comando.AtaqueMenorPrio, prioMilitar[prioMilitar.Count - 1].getCasilla().transform, 60);
+                        currMision = new Mision(Comando.AtaqueMenorPrio, prioMilitar[prioMilitar.Count - 1].GetCasilla().transform, 60);
                         misMisiones.Add(currMision);
 
                     }
@@ -713,7 +742,7 @@ namespace es.ucm.fdi.iav.rts.g02
                     }
                     else
                     {
-                        currMision = new Mision(Comando.AtaqueMenorPrio, prioMilitar[prioMilitar.Count - 1].getCasilla().transform, 60);
+                        currMision = new Mision(Comando.AtaqueMenorPrio, prioMilitar[prioMilitar.Count - 1].GetCasilla().transform, 60);
                         misMisiones.Add(currMision);
                         currMision = new Mision(Comando.DefiendeRecurso, MisExtractores[0].transform, 54);
                         misMisiones.Add(currMision);
