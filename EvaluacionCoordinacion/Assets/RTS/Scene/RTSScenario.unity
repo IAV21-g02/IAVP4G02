@@ -134,6 +134,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: HarkonnenExplorationUnit (2)
       objectReference: {fileID: 0}
+    - target: {fileID: 100000, guid: 2e66fc031b2db9543b540ba02833d2c2, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 2e66fc031b2db9543b540ba02833d2c2, type: 3}
       propertyPath: m_RootOrder
       value: 5
@@ -202,6 +206,10 @@ PrefabInstance:
     - target: {fileID: 100000, guid: 2e66fc031b2db9543b540ba02833d2c2, type: 3}
       propertyPath: m_Name
       value: HarkonnenExplorationUnit (1)
+      objectReference: {fileID: 0}
+    - target: {fileID: 100000, guid: 2e66fc031b2db9543b540ba02833d2c2, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 2e66fc031b2db9543b540ba02833d2c2, type: 3}
       propertyPath: m_RootOrder
@@ -477,8 +485,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 199240328}
-  - component: {fileID: 199240327}
   - component: {fileID: 199240329}
+  - component: {fileID: 199240327}
   m_Layer: 9
   m_Name: FremenController
   m_TagString: Untagged
@@ -495,9 +503,16 @@ MonoBehaviour:
   m_GameObject: {fileID: 199240326}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 857ca61d24f0c9346994e02a9fb4a824, type: 3}
+  m_Script: {fileID: 11500000, guid: bb5e6558b9910564ca25df52b8b1b66e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  thinkTime: 0.5
+  maximaPrioridad: 100
+  minDesiredExtractors: 2
+  minDesiredDestructors: 2
+  minDesiredExplorers: 2
+  currEstrategia: 0
+  dineroSuficiente: 60000
 --- !u!4 &199240328
 Transform:
   m_ObjectHideFlags: 0
@@ -543,6 +558,10 @@ PrefabInstance:
     - target: {fileID: 100000, guid: 4786654cf2a14f94abe6dc3610ba99bf, type: 3}
       propertyPath: m_Name
       value: FremenDestructionUnit
+      objectReference: {fileID: 0}
+    - target: {fileID: 100000, guid: 4786654cf2a14f94abe6dc3610ba99bf, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 4786654cf2a14f94abe6dc3610ba99bf, type: 3}
       propertyPath: m_RootOrder
@@ -600,6 +619,10 @@ PrefabInstance:
     - target: {fileID: 100000, guid: 4786654cf2a14f94abe6dc3610ba99bf, type: 3}
       propertyPath: m_Name
       value: FremenDestructionUnit
+      objectReference: {fileID: 0}
+    - target: {fileID: 100000, guid: 4786654cf2a14f94abe6dc3610ba99bf, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 4786654cf2a14f94abe6dc3610ba99bf, type: 3}
       propertyPath: m_RootOrder
@@ -748,6 +771,10 @@ PrefabInstance:
     - target: {fileID: 100000, guid: 2e66fc031b2db9543b540ba02833d2c2, type: 3}
       propertyPath: m_Name
       value: HarkonnenExplorationUnit (3)
+      objectReference: {fileID: 0}
+    - target: {fileID: 100000, guid: 2e66fc031b2db9543b540ba02833d2c2, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 2e66fc031b2db9543b540ba02833d2c2, type: 3}
       propertyPath: m_RootOrder
@@ -936,6 +963,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: HarkonnenExtractionUnit
       objectReference: {fileID: 0}
+    - target: {fileID: 5314750715208388521, guid: 0e7b61d8b62b28a4d8c0c4e3cb1b8468,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0e7b61d8b62b28a4d8c0c4e3cb1b8468, type: 3}
 --- !u!4 &376257164 stripped
@@ -1044,6 +1076,10 @@ PrefabInstance:
     - target: {fileID: 100000, guid: 671e287d801cb894fab6a4c0a8407efa, type: 3}
       propertyPath: m_Name
       value: HarkonnenDestructionUnit
+      objectReference: {fileID: 0}
+    - target: {fileID: 100000, guid: 671e287d801cb894fab6a4c0a8407efa, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 671e287d801cb894fab6a4c0a8407efa, type: 3}
       propertyPath: m_RootOrder
@@ -1323,8 +1359,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cdb29e5397e1a4540b2cdc37f527831d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  filas: 0
-  columnas: 0
   ejemplo: {fileID: 786544053357261242, guid: d1fa497327155ae40a67930176c841b2, type: 3}
 --- !u!1001 &540766918
 PrefabInstance:
@@ -1392,6 +1426,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: HarkonnenExtractionUnit (1)
+      objectReference: {fileID: 0}
+    - target: {fileID: 5314750715208388521, guid: 0e7b61d8b62b28a4d8c0c4e3cb1b8468,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0e7b61d8b62b28a4d8c0c4e3cb1b8468, type: 3}
@@ -1714,7 +1753,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 100000, guid: ed9ccfede12a7404dbb3be6fee9a43e4, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 100002, guid: ed9ccfede12a7404dbb3be6fee9a43e4, type: 3}
       propertyPath: m_Layer
@@ -1906,7 +1945,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: ed9ccfede12a7404dbb3be6fee9a43e4, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -11.5985565
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: ed9ccfede12a7404dbb3be6fee9a43e4, type: 3}
       propertyPath: m_LocalPosition.y
@@ -1914,7 +1953,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: ed9ccfede12a7404dbb3be6fee9a43e4, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -67.7
+      value: -45.51
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: ed9ccfede12a7404dbb3be6fee9a43e4, type: 3}
       propertyPath: m_LocalRotation.w
@@ -2258,6 +2297,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: FremenExtractionUnit
       objectReference: {fileID: 0}
+    - target: {fileID: 5314750715208388521, guid: 97eb4770fd0d5f046b1d76421440a516,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 97eb4770fd0d5f046b1d76421440a516, type: 3}
 --- !u!1 &838266931 stripped
@@ -2475,6 +2519,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: HarkonnenExplorationUnit
       objectReference: {fileID: 0}
+    - target: {fileID: 100000, guid: 2e66fc031b2db9543b540ba02833d2c2, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 2e66fc031b2db9543b540ba02833d2c2, type: 3}
       propertyPath: m_RootOrder
       value: 3
@@ -2489,7 +2537,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 2e66fc031b2db9543b540ba02833d2c2, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 49.3
+      value: 61.5
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 2e66fc031b2db9543b540ba02833d2c2, type: 3}
       propertyPath: m_LocalRotation.w
@@ -2519,6 +2567,18 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 400002, guid: 2e66fc031b2db9543b540ba02833d2c2, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 400002, guid: 2e66fc031b2db9543b540ba02833d2c2, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 11100000, guid: 2e66fc031b2db9543b540ba02833d2c2, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 2e66fc031b2db9543b540ba02833d2c2, type: 3}
 --- !u!4 &1103242769 stripped
@@ -2538,13 +2598,17 @@ PrefabInstance:
       propertyPath: m_Name
       value: FremenExplorationUnit (1)
       objectReference: {fileID: 0}
+    - target: {fileID: 100000, guid: ed9ccfede12a7404dbb3be6fee9a43e4, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: ed9ccfede12a7404dbb3be6fee9a43e4, type: 3}
       propertyPath: m_RootOrder
       value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: ed9ccfede12a7404dbb3be6fee9a43e4, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -6.2
+      value: -19.1
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: ed9ccfede12a7404dbb3be6fee9a43e4, type: 3}
       propertyPath: m_LocalPosition.y
@@ -2552,7 +2616,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: ed9ccfede12a7404dbb3be6fee9a43e4, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -73.2
+      value: -86.9
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: ed9ccfede12a7404dbb3be6fee9a43e4, type: 3}
       propertyPath: m_LocalRotation.w
@@ -2762,6 +2826,10 @@ PrefabInstance:
     - target: {fileID: 100000, guid: 2e66fc031b2db9543b540ba02833d2c2, type: 3}
       propertyPath: m_Name
       value: HarkonnenExplorationUnit (4)
+      objectReference: {fileID: 0}
+    - target: {fileID: 100000, guid: 2e66fc031b2db9543b540ba02833d2c2, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 2e66fc031b2db9543b540ba02833d2c2, type: 3}
       propertyPath: m_RootOrder
@@ -3746,6 +3814,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: FremenExtractionUnit (1)
+      objectReference: {fileID: 0}
+    - target: {fileID: 5314750715208388521, guid: 97eb4770fd0d5f046b1d76421440a516,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 97eb4770fd0d5f046b1d76421440a516, type: 3}

@@ -11,20 +11,18 @@ namespace es.ucm.fdi.iav.rts.g02
         private int columnas;
         //  Grid del escenario
         private Grid grid;
-        //  Terrain del escenario
-        private Terrain terrain;
-        [Tooltip("Prefab de las casillas")]
-        public GameObject ejemplo;
         //  Matriz de casillas
         private CasillaBehaviour[,] matriz;
         //  instancia estática de mapManager
         private static MapManager instance_;
-
-        //Para ocultar el mapa
+        //  Para ocultar el mapa
         private bool visible = false;
+        //  Terrain del escenario
+        private Terrain terrain;
 
-        //List<CasillaPrioAtaque> casillasAtaque = new List<CasillaPrioAtaque>();
-        //List<CasillaPrioDefensa> casillasDefensa = new List<CasillaPrioDefensa>();
+        //  GameObject usado para instanciar el mapa
+        [Tooltip("Prefab de las casillas")]
+        public GameObject ejemplo;
 
         private void Awake()
         {
@@ -43,7 +41,7 @@ namespace es.ucm.fdi.iav.rts.g02
             return instance_;
         }
 
-        //  Construye las casillas
+        //  Construye las casillas a lo largo del mapa
         void Start()
         {
             grid = GetComponentInParent<Grid>();
@@ -137,8 +135,8 @@ namespace es.ucm.fdi.iav.rts.g02
         //  Devuelve la casilla en función de un transform
         public CasillaBehaviour GetCasillaCercana(Transform pos)
         {
-            int indX = (int)(pos.position.x / grid.cellSize.x);
-            int indZ = (int)(pos.position.z / grid.cellSize.z);
+            int indX = Mathf.Abs((int)(pos.position.x / grid.cellSize.x));
+            int indZ = Mathf.Abs((int)(pos.position.z / grid.cellSize.z));
             return matriz[indX, indZ];
         }
     }

@@ -7,6 +7,8 @@ namespace es.ucm.fdi.iav.rts.g02
 
 
 public enum ColorTeam{ AZUL,AMARILLO,VERDE, NEUTRAL, VACIA }
+
+
 public class Team : MonoBehaviour
 {
     public ColorTeam team_;

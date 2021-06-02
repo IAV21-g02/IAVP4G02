@@ -11,6 +11,7 @@ namespace es.ucm.fdi.iav.rts.g02
         private int MyIndex { get; set; }
         private ColorTeam myType;
 
+
         public int minDesiredExtractors = 2;
         public int minDesiredDestructors = 2; //TO DO: configurar
         public int minDesiredExplorers = 2; //TO DO: configurar
@@ -86,6 +87,7 @@ namespace es.ucm.fdi.iav.rts.g02
             // Coger indice asignado por el gestor del juego
             MyIndex = RTSGameManager.Instance.GetIndex(this);
             myType = RTSGameManager.Instance.GetBaseFacilities(MyIndex)[0].GetComponent<UnitType>().getUnitType();
+            //enemyType = RTSGameManager.Instance.GetBaseFacilities(FirstEnemyIndex)[0].GetComponent<UnitType>().getUnitType();
             // Obtengo referencias a las cosas de mi enemigo cogiendo la lista de indices
             //correspondientes a cada jugador
             var indexList = RTSGameManager.Instance.GetIndexes();
@@ -148,6 +150,7 @@ namespace es.ucm.fdi.iav.rts.g02
         {
             return myType;
         }
+
 
         //  Actualiza las prioridades de defensa y ataque del mapa de influencias
         public void ActualizaPrioridades()

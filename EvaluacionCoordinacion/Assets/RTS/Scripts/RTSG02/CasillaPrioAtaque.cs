@@ -34,12 +34,12 @@ namespace es.ucm.fdi.iav.rts.g02
 
         public bool Equals(CasillaPrioAtaque other)
         {
-            return (this.Equals(other) && this.casilla.Equals(other));
+            return (this.casilla.Equals(other) && this.casilla.Equals(other));
         }
 
         public override bool Equals(object obj)
         {
-            CasillaBehaviour other = (CasillaBehaviour)obj;
+            CasillaPrioAtaque other = (CasillaPrioAtaque)obj;
             return Equals(other);
         }
 
@@ -88,12 +88,12 @@ namespace es.ucm.fdi.iav.rts.g02
 
         public bool Equals(CasillaPrioDefensa other)
         {
-            return (this.Equals(other) && this.casilla.Equals(other));
+            return (this.casilla.Equals(other) && this.casilla.Equals(other));
         }
 
         public override bool Equals(object obj)
         {
-            CasillaBehaviour other = (CasillaBehaviour)obj;
+            CasillaPrioDefensa other = (CasillaPrioDefensa)obj;
             return Equals(other);
         }
 
