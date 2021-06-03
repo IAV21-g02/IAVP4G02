@@ -26,9 +26,9 @@ namespace es.ucm.fdi.iav.rts.g02
         private List<UnitType> unidadesAzules = new List<UnitType>();
 
         //Prioridad total de las unidades amarillas
-        private int prioridadAmarilla = 0;
+        public int prioridadAmarilla = 0;
         //Prioridad total de las unidades azules
-        private int prioridadAzul = 0;
+        public int prioridadAzul = 0;
         //Prioridad total de las unidades verdes
         private int prioridadVerde = 0;
 
@@ -59,6 +59,7 @@ namespace es.ucm.fdi.iav.rts.g02
             if (unit)
             {
                 MapManager.GetInstance().ActualizaPrioridadAlEntrar(this, unit);
+                
             }
         }
 

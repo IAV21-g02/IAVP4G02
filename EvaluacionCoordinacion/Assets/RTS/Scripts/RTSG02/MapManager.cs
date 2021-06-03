@@ -20,6 +20,9 @@ namespace es.ucm.fdi.iav.rts.g02
         //  Terrain del escenario
         private Terrain terrain;
 
+        private CasillaBehaviour MaxprioAzul;
+        private CasillaBehaviour MaxprioAmarillo;
+
         //  GameObject usado para instanciar el mapa
         [Tooltip("Prefab de las casillas")]
         public GameObject ejemplo;
@@ -64,6 +67,10 @@ namespace es.ucm.fdi.iav.rts.g02
                     currCasilla.transform.localPosition = pos;
                     matriz[i, j] = currCasilla.GetComponent<CasillaBehaviour>();
                     matriz[i, j].setMatrixPos(i, j);
+                    if (i == 0 && j == 0)
+                    {
+                        Debug.Log(matriz[i, j].transform.position);
+                    }
                 }
             }
         }
@@ -88,6 +95,18 @@ namespace es.ucm.fdi.iav.rts.g02
                     }
                 }
             }
+
+
+
+            if (MaxprioAzul == null || MaxprioAzul.prioridadAzul < casilla.prioridadAzul)
+            {
+                MaxprioAzul = casilla;
+            }
+            if (MaxprioAmarillo == null || MaxprioAmarillo.prioridadAmarilla < casilla.prioridadAmarilla)
+            {
+                MaxprioAmarillo = casilla;
+            }
+
         }
 
         //  Actualiza una casilla al salir
@@ -114,7 +133,8 @@ namespace es.ucm.fdi.iav.rts.g02
 
         private void Update()
         {
-            if (Input.GetKeyDown(KeyCode.M)) {
+            if (Input.GetKeyDown(KeyCode.M))
+            {
                 if (visible)
                 {
                     for (int i = 0; i < transform.childCount; i++)
@@ -122,7 +142,8 @@ namespace es.ucm.fdi.iav.rts.g02
                         transform.GetChild(i).gameObject.SetActive(false);
                     }
                 }
-                else {
+                else
+                {
                     for (int i = 0; i < transform.childCount; i++)
                     {
                         transform.GetChild(i).gameObject.SetActive(true);
@@ -133,11 +154,23 @@ namespace es.ucm.fdi.iav.rts.g02
             }
         }
         //  Devuelve la casilla en función de un transform
-        public CasillaBehaviour GetCasillaCercana(Transform pos)
+        //public CasillaBehaviour GetCasillaCercana(Transform pos)
+        //{
+        //    int indX = Mathf.Abs((int)(pos.position.x / grid.cellSize.x));
+        //    int indZ = Mathf.Abs((int)(pos.position.z / grid.cellSize.z));
+        //    return matriz[indX, indZ];
+        //}
+        public CasillaBehaviour getEnemyMaxPrio(ColorTeam team)
         {
-            int indX = Mathf.Abs((int)(pos.position.x / grid.cellSize.x));
-            int indZ = Mathf.Abs((int)(pos.position.z / grid.cellSize.z));
-            return matriz[indX, indZ];
+
+            if (team == ColorTeam.AMARILLO)
+            {
+                return MaxprioAzul;
+            }
+            else
+            {
+                return MaxprioAmarillo;
+            }
         }
     }
 };

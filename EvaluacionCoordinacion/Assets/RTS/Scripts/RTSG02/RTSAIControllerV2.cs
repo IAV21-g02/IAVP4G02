@@ -153,71 +153,71 @@ namespace es.ucm.fdi.iav.rts.g02
 
 
         //  Actualiza las prioridades de defensa y ataque del mapa de influencias
-        public void ActualizaPrioridades()
-        {
-            //-------------MILICIA------------//
-            prioMilitar = new List<CasillaPrioAtaque>();
-            foreach (DestructionUnit unit in DestructoresEnemigos)
-            {
-                CasillaBehaviour currCasilla = MapManager.GetInstance().GetCasillaCercana(unit.transform);
-                CasillaPrioAtaque atq = currCasilla.GetCasillaPrioMilitar();
-                atq.ActualizaAtaque();
+    //    public void ActualizaPrioridades()
+    //    {
+    //        //-------------MILICIA------------//
+    //        prioMilitar = new List<CasillaPrioAtaque>();
+    //        foreach (DestructionUnit unit in DestructoresEnemigos)
+    //        {
+    //            CasillaBehaviour currCasilla = MapManager.GetInstance().GetCasillaCercana(unit.transform);
+    //            CasillaPrioAtaque atq = currCasilla.GetCasillaPrioMilitar();
+    //            atq.ActualizaAtaque();
 
-                if (!prioMilitar.Contains(atq))
-                {
-                    prioMilitar.Add(atq);
-                }
-            }
+    //            if (!prioMilitar.Contains(atq))
+    //            {
+    //                prioMilitar.Add(atq);
+    //            }
+    //        }
 
-            foreach (ExplorationUnit unit in ExploradoresEnemigos)
-            {
-                CasillaBehaviour currCasilla = MapManager.GetInstance().GetCasillaCercana(unit.transform);
-                CasillaPrioAtaque atq = currCasilla.GetCasillaPrioMilitar();
-                atq.ActualizaAtaque();
+    //        foreach (ExplorationUnit unit in ExploradoresEnemigos)
+    //        {
+    //            CasillaBehaviour currCasilla = MapManager.GetInstance().GetCasillaCercana(unit.transform);
+    //            CasillaPrioAtaque atq = currCasilla.GetCasillaPrioMilitar();
+    //            atq.ActualizaAtaque();
 
-                if (!prioMilitar.Contains(currCasilla.GetCasillaPrioMilitar()))
-                {
-                    prioMilitar.Add(currCasilla.GetCasillaPrioMilitar());
-                }
-            }
+    //            if (!prioMilitar.Contains(currCasilla.GetCasillaPrioMilitar()))
+    //            {
+    //                prioMilitar.Add(currCasilla.GetCasillaPrioMilitar());
+    //            }
+    //        }
 
-            //------------DEFENSA---------------//
-            prioDefensa = new List<CasillaPrioDefensa>();
-            foreach (ExtractionUnit unit in MisExtractores)
-            {
-                CasillaBehaviour currCasilla = MapManager.GetInstance().GetCasillaCercana(unit.transform);
-                CasillaPrioDefensa def = currCasilla.getCasillaPrioDefensa();
-                def.ActualizaDefensa();
+    //        //------------DEFENSA---------------//
+    //        prioDefensa = new List<CasillaPrioDefensa>();
+    //        foreach (ExtractionUnit unit in MisExtractores)
+    //        {
+    //            CasillaBehaviour currCasilla = MapManager.GetInstance().GetCasillaCercana(unit.transform);
+    //            CasillaPrioDefensa def = currCasilla.getCasillaPrioDefensa();
+    //            def.ActualizaDefensa();
 
-                if (!prioDefensa.Contains(def))
-                {
-                    prioDefensa.Add(def);
-                }
-            }
+    //            if (!prioDefensa.Contains(def))
+    //            {
+    //                prioDefensa.Add(def);
+    //            }
+    //        }
 
-            //Base
-            CasillaPrioDefensa defAux = MapManager.GetInstance().GetCasillaCercana(MiBase[0].transform).getCasillaPrioDefensa();
-            defAux.ActualizaDefensa();
+    //        //Base
+    //        CasillaPrioDefensa defAux = MapManager.GetInstance().GetCasillaCercana(MiBase[0].transform).getCasillaPrioDefensa();
+    //        defAux.ActualizaDefensa();
 
-            if (!prioDefensa.Contains(defAux))
-            {
-                prioDefensa.Add(defAux);
-            }
+    //        if (!prioDefensa.Contains(defAux))
+    //        {
+    //            prioDefensa.Add(defAux);
+    //        }
             
-            //Factoria
-            defAux = MapManager.GetInstance().GetCasillaCercana(MiFactoria[0].transform).getCasillaPrioDefensa();
-            defAux.ActualizaDefensa();
+    //        //Factoria
+    //        defAux = MapManager.GetInstance().GetCasillaCercana(MiFactoria[0].transform).getCasillaPrioDefensa();
+    //        defAux.ActualizaDefensa();
 
-            if (!prioDefensa.Contains(defAux))
-            {
-                prioDefensa.Add(defAux);
-            }
+    //        if (!prioDefensa.Contains(defAux))
+    //        {
+    //            prioDefensa.Add(defAux);
+    //        }
 
-            //Ordenamiento de prioridades
-            ComparerAtaque compATQ = new ComparerAtaque();
-            prioMilitar.Sort(compATQ);
-            ComparerDef compDEF = new ComparerDef();
-            prioDefensa.Sort(compDEF);
-        }
+    //        //Ordenamiento de prioridades
+    //        ComparerAtaque compATQ = new ComparerAtaque();
+    //        prioMilitar.Sort(compATQ);
+    //        ComparerDef compDEF = new ComparerDef();
+    //        prioDefensa.Sort(compDEF);
+    //    }
     }
 }

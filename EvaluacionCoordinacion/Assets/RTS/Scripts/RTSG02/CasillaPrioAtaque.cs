@@ -34,7 +34,7 @@ namespace es.ucm.fdi.iav.rts.g02
 
         public bool Equals(CasillaPrioAtaque other)
         {
-            return (this.casilla.Equals(other) && this.casilla.Equals(other));
+            return (this.casilla.Equals(other));
         }
 
         public override bool Equals(object obj)
