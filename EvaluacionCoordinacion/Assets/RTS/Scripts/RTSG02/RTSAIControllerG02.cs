@@ -21,7 +21,7 @@ namespace es.ucm.fdi.iav.rts.g02
         Estrategia estrategia;
 
         //  Crea una misión
-        public Mision(Comando cmd_ , Transform objetivo_ ,int prio_, Estrategia estrategia_)
+        public Mision(Comando cmd_, Transform objetivo_, int prio_, Estrategia estrategia_)
         {
             this.actMision = cmd_;
             this.objetivo = objetivo_;
@@ -87,11 +87,11 @@ namespace es.ucm.fdi.iav.rts.g02
         public int numeroExtractores;
 
         //  Lista de extractores de este batallon
-        List<ExtractionUnit> extractores;
+        public List<ExtractionUnit> extractores;
         //  Lista de extractores de este batallon
-        List<DestructionUnit> destructores;
+        public List<DestructionUnit> destructores;
         //  Lista de extractores de este batallon
-        List<ExplorationUnit> exploradores;
+        public List<ExplorationUnit> exploradores;
 
         //  Misión de este batallon
         Mision mision;
@@ -108,12 +108,12 @@ namespace es.ucm.fdi.iav.rts.g02
         public bool enMovimiento;
 
         // Construye un batallón con un tipo de batallón y una misión
-        public Batallon(TipoBatallon tipoBatallon_,Mision currMision)
+        public Batallon(TipoBatallon tipoBatallon_, Mision currMision)
         {
             tipoBatallon = tipoBatallon_;
             completado = false;
             enMision = false;
-            rangoPosicion = 8;
+            rangoPosicion = 5;
             enMovimiento = false;
 
             extractores = new List<ExtractionUnit>();
@@ -146,6 +146,18 @@ namespace es.ucm.fdi.iav.rts.g02
                 default:
                     break;
             }
+        }
+
+        public bool batallonCompleto()
+        {
+            if (destructores.Count >= numeroDestructores &&
+                exploradores.Count >= numeroExploradores &&
+                extractores.Count >= numeroExtractores)
+            {
+                return true;
+            }
+
+            return false;
         }
 
         //  Construye un batallon en función de un tipo de batallón
@@ -183,14 +195,19 @@ namespace es.ucm.fdi.iav.rts.g02
         public void agregaUnidad(DestructionUnit unidad)
         {
             destructores.Add(unidad);
+            completado = batallonCompleto();
         }
         public void agregaUnidad(ExtractionUnit unidad)
         {
             extractores.Add(unidad);
+            completado = batallonCompleto();
+
         }
         public void agregaUnidad(ExplorationUnit unidad)
         {
             exploradores.Add(unidad);
+            completado = batallonCompleto();
+
         }
         public void agregaUnidad(Unit unidad)
         {
@@ -212,6 +229,8 @@ namespace es.ucm.fdi.iav.rts.g02
                 extractores.Add(ext);
                 return;
             }
+            completado = batallonCompleto();
+
         }
 
         //  Asigna una nueva misión a un batallón
@@ -270,7 +289,7 @@ namespace es.ucm.fdi.iav.rts.g02
 
             foreach (ExplorationUnit explorador in exploradores)
             {
-                if ((mision.getObjetivo().position - explorador.transform.position).magnitude < rangoPosicion)
+                if ((mision.getObjetivo().position - explorador.transform.position).magnitude > rangoPosicion)
                 {
                     RTSGameManager.Instance.MoveUnit(rts, explorador, mision.getObjetivo().position);
                 }
@@ -282,7 +301,7 @@ namespace es.ucm.fdi.iav.rts.g02
 
             foreach (ExtractionUnit extractor in extractores)
             {
-                if ((extractor.transform.position - mision.getObjetivo().position).magnitude < rangoPosicion)
+                if ((extractor.transform.position - mision.getObjetivo().position).magnitude > rangoPosicion)
                 {
                     RTSGameManager.Instance.MoveUnit(rts, extractor, mision.getObjetivo().position);
                 }
@@ -294,7 +313,7 @@ namespace es.ucm.fdi.iav.rts.g02
 
             foreach (DestructionUnit destructor in destructores)
             {
-                if ((destructor.transform.position - mision.getObjetivo().position).magnitude < rangoPosicion)
+                if ((destructor.transform.position - mision.getObjetivo().position).magnitude > rangoPosicion)
                 {
                     RTSGameManager.Instance.MoveUnit(rts, destructor, mision.getObjetivo().position);
 
@@ -309,6 +328,11 @@ namespace es.ucm.fdi.iav.rts.g02
         public Mision getMision()
         {
             return mision;
+        }
+
+        public TipoBatallon getTipoBatallon()
+        {
+            return tipoBatallon;
         }
 
         public Estrategia getEstrategia()
@@ -326,7 +350,7 @@ namespace es.ucm.fdi.iav.rts.g02
         //  Dos exploradores y un destructor
         BatallonDobleDesayuno,
         //  Dos exploradores
-        BatallonAurgar, 
+        BatallonAurgar,
         //  Batallón con todas las unidades
         BatallonPuerco
     }
@@ -381,7 +405,7 @@ namespace es.ucm.fdi.iav.rts.g02
         Ahorrar,
         Emergencia
     }
-    
+
     //  Diferentes estrategias que usará la IA
     public enum Estrategia
     {
@@ -394,7 +418,9 @@ namespace es.ucm.fdi.iav.rts.g02
         //  Guerrilla consiste en ataques de pocas unidades a estructuras, extractores o anidades enemigas y luego reagruparse.
         Guerrilla,
         //  El estado de emergencia es cuando hay posibilidades de perder el juego (ataque enemigo a la base o factoria) y no tengo unidades defendiendo
-        Emergencia
+        Emergencia,
+        //  
+        NONE
     }
 
     struct Extractor
@@ -471,6 +497,8 @@ namespace es.ucm.fdi.iav.rts.g02
 
         //  Actual estrategía que sigue la IA
         public Estrategia currEstrategia;
+        //  Estrategía anterior
+        private Estrategia estrategiaAnt;
         //  Lista de misiones que tiene la IA actualmente
         private List<Mision> misMisiones;
         //  Siguiente unidad que la IA quiere comprar
@@ -580,6 +608,8 @@ namespace es.ucm.fdi.iav.rts.g02
 
             gestionaExtractores();
 
+            estrategiaAnt = Estrategia.NONE;
+
             // Construyo por primera vez el mapa de influencia (con las 'capas' que necesite)
             // ...
             //¿TO DO:?
@@ -588,16 +618,16 @@ namespace es.ucm.fdi.iav.rts.g02
         //TO DO: pueeees, todo, pa que nos vamos a engañar :D
         private void AIGameLoop()
         {
-            //TO DO:Mirar el mapa de influencia y ver que tareas necesitamos hacer con nuestros batallones
-
-            // Como no es demasiado costoso, vamos a tomar las listas completas en cada paso de pensamiento
+            //  Actualizamamos las unidades que hay en juego
             ActualizeGameElements();
 
-            Estrategia nuevaEstrategia = eligeEstrategia();
-            //  Se ha detectado un cambio de estrategia
-            if (nuevaEstrategia != currEstrategia)
+            //  Elegimos una estrategía 
+            eligeEstrategia();
+            //  Se ha detectado un cambio de estrategía
+            if (currEstrategia != estrategiaAnt)
             {
-                currEstrategia = nuevaEstrategia;
+                estrategiaAnt = currEstrategia;
+                //  Creamos las misiones en función de la nueva estrategía
                 gestionaMisiones();
             }
 
@@ -610,10 +640,16 @@ namespace es.ucm.fdi.iav.rts.g02
                     gestionaAtaque();
                     break;
                 case Estrategia.Farming:
+                    gestionaFarm();
                     //gestionaExtractores();
                     break;
                     //.....
             }
+            foreach (Batallon batallon in batallones)
+            {
+                Debug.Log(batallon.getTipoBatallon().ToString());
+            }
+            
 
             //TO DO:Actualizar tareas que estan realizando nuestros batallones y reasignarselas si es necesario
             //eligeEstrategia();
@@ -711,10 +747,10 @@ namespace es.ucm.fdi.iav.rts.g02
         {
             LimitedAccess actMelange = null;
             float distance = 100000;
-            foreach (LimitedAccess melange in Recursos) 
+            foreach (LimitedAccess melange in Recursos)
             {
-                float melangeDistance = (initPos - melange.transform.position ).magnitude;
-                if (melange.OccupiedBy == null && melangeDistance < distance) 
+                float melangeDistance = (initPos - melange.transform.position).magnitude;
+                if (melange.OccupiedBy == null && melangeDistance < distance)
                 {
                     actMelange = melange;
                     distance = melangeDistance;
@@ -734,46 +770,71 @@ namespace es.ucm.fdi.iav.rts.g02
                     if (myMoney >= RTSGameManager.Instance.DestructionUnitCost &&
                         MisDestructores.Count - 1 < RTSGameManager.Instance.DestructionUnitsMax)
                     {
-                        MisDestructores.Add(RTSGameManager.Instance.CreateUnit(this, MiBase[0], RTSGameManager.UnitType.DESTRUCTION).GetComponent<DestructionUnit>());
+                        Unit currUnit = RTSGameManager.Instance.CreateUnit(this, MiBase[0], RTSGameManager.UnitType.DESTRUCTION).GetComponent<DestructionUnit>();
+                        MisDestructores.Add(currUnit.GetComponent<DestructionUnit>());
+                        unidadesSinBatallon.Add(currUnit);
                     }
                     else if (myMoney >= RTSGameManager.Instance.ExplorationUnitCost &&
-                        MisDestructores.Count - 1 < RTSGameManager.Instance.ExplorationUnitsMax) 
+                        MisExploradores.Count - 1 < RTSGameManager.Instance.ExplorationUnitsMax)
                     {
-                        MisExploradores.Add(RTSGameManager.Instance.CreateUnit(this, MiBase[0], RTSGameManager.UnitType.EXPLORATION).GetComponent<ExplorationUnit>());
+                        Unit currUnit = RTSGameManager.Instance.CreateUnit(this, MiBase[0], RTSGameManager.UnitType.EXPLORATION).GetComponent<ExplorationUnit>();
+                        MisExploradores.Add(currUnit.GetComponent<ExplorationUnit>());
+                        unidadesSinBatallon.Add(currUnit);
                     }
                     break;
                 case Estrategia.Defensivo:  //Priorizamos la compra de exploradores sobre los destructores
                     if (myMoney >= RTSGameManager.Instance.ExplorationUnitCost &&
-                            MisDestructores.Count - 1 < RTSGameManager.Instance.ExplorationUnitsMax)
+                            MisExploradores.Count - 1 < RTSGameManager.Instance.ExplorationUnitsMax)
                     {
-                        MisExploradores.Add(RTSGameManager.Instance.CreateUnit(this, MiBase[0], RTSGameManager.UnitType.EXPLORATION).GetComponent<ExplorationUnit>());
-                    }
-                    else if (myMoney >= RTSGameManager.Instance.DestructionUnitCost &&
-                            MisDestructores.Count - 1 < RTSGameManager.Instance.DestructionUnitsMax) 
-                    {
-                        MisDestructores.Add(RTSGameManager.Instance.CreateUnit(this, MiBase[0], RTSGameManager.UnitType.DESTRUCTION).GetComponent<DestructionUnit>());
-                    }
-                    break;
-                case Estrategia.Guerrilla:  //Priorizamos la compra de destructores sobre los exploradores
-                    if (myMoney >= RTSGameManager.Instance.ExplorationUnitCost &&
-                            MisDestructores.Count - 1 < RTSGameManager.Instance.ExplorationUnitsMax)
-                    {
-                        MisExploradores.Add(RTSGameManager.Instance.CreateUnit(this, MiBase[0], RTSGameManager.UnitType.EXPLORATION).GetComponent<ExplorationUnit>());
+                        Unit currUnit = RTSGameManager.Instance.CreateUnit(this, MiBase[0], RTSGameManager.UnitType.EXPLORATION).GetComponent<ExplorationUnit>();
+                        MisExploradores.Add(currUnit.GetComponent<ExplorationUnit>());
+                        unidadesSinBatallon.Add(currUnit);
                     }
                     else if (myMoney >= RTSGameManager.Instance.DestructionUnitCost &&
                             MisDestructores.Count - 1 < RTSGameManager.Instance.DestructionUnitsMax)
                     {
-                        MisDestructores.Add(RTSGameManager.Instance.CreateUnit(this, MiBase[0], RTSGameManager.UnitType.DESTRUCTION).GetComponent<DestructionUnit>());
+                        Unit currUnit = RTSGameManager.Instance.CreateUnit(this, MiBase[0], RTSGameManager.UnitType.DESTRUCTION).GetComponent<DestructionUnit>();
+                        MisDestructores.Add(currUnit.GetComponent<DestructionUnit>());
+                        unidadesSinBatallon.Add(currUnit);
+                    }
+                    break;
+                case Estrategia.Guerrilla:  //Priorizamos la compra de destructores sobre los exploradores
+                    if (myMoney >= RTSGameManager.Instance.ExplorationUnitCost &&
+                            MisExploradores.Count - 1 < RTSGameManager.Instance.ExplorationUnitsMax)
+                    {
+                        Unit currUnit = RTSGameManager.Instance.CreateUnit(this, MiBase[0], RTSGameManager.UnitType.EXPLORATION).GetComponent<ExplorationUnit>();
+                        MisExploradores.Add(currUnit.GetComponent<ExplorationUnit>());
+                        unidadesSinBatallon.Add(currUnit);
+                    }
+                    else if (myMoney >= RTSGameManager.Instance.DestructionUnitCost &&
+                            MisDestructores.Count - 1 < RTSGameManager.Instance.DestructionUnitsMax)
+                    {
+                        Unit currUnit = RTSGameManager.Instance.CreateUnit(this, MiBase[0], RTSGameManager.UnitType.DESTRUCTION).GetComponent<DestructionUnit>();
+                        MisDestructores.Add(currUnit.GetComponent<DestructionUnit>());
+                        unidadesSinBatallon.Add(currUnit);
                     }
                     break;
                 case Estrategia.Farming:
-                    if (myMoney >= RTSGameManager.Instance.ExtractionUnitCost &&
-                        MisExtractores.Count - 1 < RTSGameManager.Instance.ExtractionUnitsMax)  
+                    bool equilibrio = true;
+                    if ((MisExtractores.Count) > (MisExploradores.Count) + (MisDestructores.Count))
+                    {
+                        equilibrio = false;
+                    }
+                    if (equilibrio && myMoney >= RTSGameManager.Instance.ExtractionUnitCost &&
+                        MisExtractores.Count - 1 < RTSGameManager.Instance.ExtractionUnitsMax)
                     {
                         Extractor actExtractor = new Extractor(RTSGameManager.Instance.CreateUnit(this, MiBase[0], RTSGameManager.UnitType.EXTRACTION).GetComponent<ExtractionUnit>());
                         MisExtractores.Add(actExtractor);
-                        RTSGameManager.Instance.MoveUnit(this,MisExtractores[MisExtractores.Count - 1].getExtractor(), getMelangeCercana(MiFactoria[0].transform.position).transform.position);
+                        RTSGameManager.Instance.MoveUnit(this, MisExtractores[MisExtractores.Count - 1].getExtractor(), getMelangeCercana(MiFactoria[0].transform.position).transform.position);
                     }
+                    else if (myMoney >= RTSGameManager.Instance.ExplorationUnitCost &&
+                        MisExploradores.Count - 1 < RTSGameManager.Instance.ExplorationUnitsMax)
+                    {
+                        Unit currUnit = RTSGameManager.Instance.CreateUnit(this, MiBase[0], RTSGameManager.UnitType.EXPLORATION).GetComponent<ExplorationUnit>();
+                        MisExploradores.Add(currUnit.GetComponent<ExplorationUnit>());
+                        unidadesSinBatallon.Add(currUnit);
+                    }
+
                     break;
                 case Estrategia.Emergencia:
 
@@ -799,10 +860,62 @@ namespace es.ucm.fdi.iav.rts.g02
         private void gestionaAtaque()
         {
             if (batallones.Count == 0) return;
-            foreach(Batallon batallon in batallones.ToArray())
+            foreach (Batallon batallon in batallones.ToArray())
             {
                 if (batallon.getEstrategia().Equals(Estrategia.Ofensivo))
                 {
+                    if (!batallon.completado)
+                    {
+                        agregaUnidadesBatallon(batallon);
+                    }
+
+                    batallon.movilizaBatallon(this);
+                }
+            }
+        }
+
+        private void agregaUnidadesBatallon(Batallon batallon)
+        {
+            if (unidadesSinBatallon.Count == 0) return;
+            int ind = 0;
+            bool completo = false;
+            while (!completo && ind < unidadesSinBatallon.Count)
+            {
+                if (batallon.numeroDestructores > batallon.destructores.Count)
+                {
+                    DestructionUnit dest = unidadesSinBatallon[ind].GetComponent<DestructionUnit>();
+                    if (dest)
+                    {
+                        batallon.agregaUnidad(dest);
+                        unidadesSinBatallon.Remove(dest);
+                    }
+                    else ind++;
+                }
+                if (batallon.numeroExploradores > batallon.exploradores.Count && ind < unidadesSinBatallon.Count)
+                {
+                    ExplorationUnit expl = unidadesSinBatallon[ind].GetComponent<ExplorationUnit>();
+                    if (expl)
+                    {
+                        batallon.agregaUnidad(expl);
+                        unidadesSinBatallon.Remove(expl);
+                    }
+                    else ind++;
+                }
+                completo = batallon.completado;
+            }
+        }
+
+        private void gestionaFarm()
+        {
+            if (batallones.Count == 0) return;
+            foreach (Batallon batallon in batallones.ToArray())
+            {
+                if (batallon.getEstrategia().Equals(Estrategia.Farming))
+                {
+                    if (!batallon.completado)
+                    {
+                        agregaUnidadesBatallon(batallon);
+                    }
                     batallon.movilizaBatallon(this);
                 }
             }
@@ -831,7 +944,7 @@ namespace es.ucm.fdi.iav.rts.g02
             }
 
             //Lo mismo con los destructores
-            else if (MisDestructores.Count < minDesiredDestructors && 
+            else if (MisDestructores.Count < minDesiredDestructors &&
                 RTSGameManager.Instance.GetMoney(MyIndex) > RTSGameManager.Instance.DestructionUnitCost)
             {
                 RTSGameManager.Instance.CreateUnit(this, MiBase[0], RTSGameManager.UnitType.DESTRUCTION);
@@ -955,19 +1068,19 @@ namespace es.ucm.fdi.iav.rts.g02
         //  Determina si hay unidades enemigas cerca de la factoria y te devuelve la unidad enemiga más cercana 
         public Unit amenazaFactoria()
         {
-            Vector3 basePos = MiFactoria[0].transform.position;
+            Vector3 factPos = MiFactoria[0].transform.position;
 
             //  Distancia más cerca de un enemigo a nuestra base
             float enemigoCercano = 100000;
             //  Distancia de seguridad
-            float distancia = 50;
+            float distancia = 30;
             //  Enemigo más cercano a nuestra base
             Unit enemigo = null;
 
             //  Hay un explorador cerca de nuestra base ?
             foreach (ExplorationUnit exploradorEnemigo in ExploradoresEnemigos)
             {
-                float enemigoDistancia = (exploradorEnemigo.transform.position - basePos).magnitude;
+                float enemigoDistancia = (exploradorEnemigo.transform.position - factPos).magnitude;
                 if (enemigoDistancia < distancia && enemigoDistancia < enemigoCercano) //Un enemigo está cerca de la base
                 {
                     enemigoCercano = enemigoDistancia;
@@ -977,7 +1090,7 @@ namespace es.ucm.fdi.iav.rts.g02
             //  Hay un destructor cerca de nuestra factoria ?
             foreach (DestructionUnit destructorEnemigo in DestructoresEnemigos)
             {
-                float enemigoDistancia = (destructorEnemigo.transform.position - basePos).magnitude;
+                float enemigoDistancia = (destructorEnemigo.transform.position - factPos).magnitude;
                 if (enemigoDistancia < distancia && enemigoDistancia < enemigoCercano) //Un enemigo está cerca de la base
                 {
                     enemigoCercano = enemigoDistancia;
@@ -987,9 +1100,11 @@ namespace es.ucm.fdi.iav.rts.g02
             return enemigo;
         }
 
-        //  Crea las misiones en función de la estrategia que usa la IA
+        //  Crea las misiones en función de la estrategia que usa la IA (Este método solo se llama cuando se detecta un cambio de estrategía)
         private void gestionaMisiones()
         {
+            misMisiones.Clear();
+            ActualizaPrioridades();
             Debug.Log("Estrategía elegida es " + currEstrategia.ToString());
             switch (currEstrategia)
             {
@@ -997,9 +1112,10 @@ namespace es.ucm.fdi.iav.rts.g02
                     gestionaEstrategiaOfensiva();
                     break;
                 case Estrategia.Farming:
-
+                    gestionarEstrategiaFarm();
                     break;
                 case Estrategia.Defensivo:
+                    gestionaEstrategiaDefensiva();
                     break;
                 case Estrategia.Guerrilla:
                     break;
@@ -1007,43 +1123,73 @@ namespace es.ucm.fdi.iav.rts.g02
                     break;
                 default:
                     break;
-                
+
             }
         }
 
         //  Crea batallón, lo añade a los batallones y devuelve el batallón creado TODO: poner los batallones que faltan
-        private Batallon creaBatallon(TipoBatallon tipoBatallon,Mision currMision)
+        private Batallon creaBatallon(TipoBatallon tipoBatallon, Mision currMision)
         {
             Batallon currBatallon = new Batallon(tipoBatallon, currMision);
 
             switch (tipoBatallon)
             {
+                case TipoBatallon.BatallonAurgar:
+                    //Debug.Log("BATALLON AUGAR!");
+                    int aux = 0;
+                    int ind = 0;
+                    while (aux < currBatallon.numeroExploradores && ind < unidadesSinBatallon.Count)
+                    {
+                        ExplorationUnit expl = unidadesSinBatallon[ind].GetComponent<ExplorationUnit>();
+                        if (expl)
+                        {
+                            currBatallon.agregaUnidad(expl);
+                            unidadesSinBatallon.Remove(expl);
+                            aux++;
+                        }
+                        else ind++;
+                    }
+
+                    if (aux < currBatallon.numeroExploradores)
+                    {
+                        currBatallon.completado = false;
+                        currBatallon.enMision = false;
+                    }
+                    else
+                    {
+                        currBatallon.completado = true;
+                        currBatallon.enMision = false;
+                    }
+                    break;
+
                 case TipoBatallon.BatallonPuerco:   //  Batallón con todas nuestras unidades
-                    currBatallon.numeroExploradores = MisExploradores.Count - 1;
-                    currBatallon.numeroDestructores = MisDestructores.Count - 1;
+                    //currBatallon.numeroExploradores = MisExploradores.Count - 1;
+                    //currBatallon.numeroDestructores = MisDestructores.Count - 1;
 
                     foreach (Unit unidad in unidadesSinBatallon)
                     {
                         currBatallon.agregaUnidad(unidad);
                     }
+                    unidadesSinBatallon.Clear();
                     currBatallon.completado = true;
                     currBatallon.enMision = false;
                     break;
 
                 case TipoBatallon.BatallonTiwardo:  // Batallón con dos destructores
-                    currBatallon.numeroExploradores = 0;
-                    currBatallon.numeroDestructores = 2;
+                    //currBatallon.numeroExploradores = 0;
+                    //currBatallon.numeroDestructores = 2;
                     int numDestructoresAsignados = 0;
                     int cont = 0;
-                    while (cont < unidadesSinBatallon.Count - 1 &&  numDestructoresAsignados < currBatallon.numeroDestructores)
+                    while (cont < unidadesSinBatallon.Count && numDestructoresAsignados < currBatallon.numeroDestructores)
                     {
                         DestructionUnit dest = unidadesSinBatallon[cont].GetComponent<DestructionUnit>();
                         if (dest)
                         {
                             currBatallon.agregaUnidad(dest);
                             numDestructoresAsignados++;
-                            cont++;
+                            unidadesSinBatallon.Remove(dest);
                         }
+                        else cont++;
                     }
                     if (numDestructoresAsignados == currBatallon.numeroDestructores)
                     {
@@ -1062,7 +1208,7 @@ namespace es.ucm.fdi.iav.rts.g02
             return batallones[batallones.Count - 1];
         }
 
-        private Estrategia eligeEstrategia()
+        private void eligeEstrategia()
         {
             bool supremaciaEconomica = RTSGameManager.Instance.GetMoney(MyIndex) > 100000 + RTSGameManager.Instance.GetMoney(FirstEnemyIndex);
             bool supremaciaMilitar = false;
@@ -1072,7 +1218,7 @@ namespace es.ucm.fdi.iav.rts.g02
             }
 
             bool equilibrio = true;
-            if ((MisExtractores.Count - 1) >= (MisExploradores.Count - 1) + (MisDestructores.Count - 1)) 
+            if ((MisExtractores.Count - 1) >= (MisExploradores.Count - 1) + (MisDestructores.Count - 1))
             {
                 equilibrio = false;
             }
@@ -1081,43 +1227,38 @@ namespace es.ucm.fdi.iav.rts.g02
             Unit enemigoEnBase = amenazaBase();
             Unit enemigoEnFactoria = amenazaFactoria();
             amenazaCercana = enemigoEnBase != null || enemigoEnFactoria != null;
-            Estrategia nuevaEstrategia = currEstrategia;
 
             if (amenazaCercana)
             {
-                nuevaEstrategia = Estrategia.Defensivo;
+                Debug.Log("AMENAZA DETECTADA");
+                currEstrategia = Estrategia.Defensivo;
             }
-            if (equilibrio && !supremaciaEconomica && !supremaciaMilitar)
+            else if (equilibrio && !supremaciaEconomica && !supremaciaMilitar)
             {
-                nuevaEstrategia = Estrategia.Farming;
+                Debug.Log("FARMING");
+                currEstrategia = Estrategia.Farming;
             }
-            else if (!equilibrio && !supremaciaEconomica)
+            else if (!supremaciaMilitar && supremaciaEconomica)
             {
-                nuevaEstrategia = Estrategia.Defensivo;
-            }
-            else if (!supremaciaEconomica && !supremaciaMilitar)
-            {
-                nuevaEstrategia = Estrategia.Farming;
+                Debug.Log("GUERRILLA");
+                currEstrategia = Estrategia.Guerrilla;
             }
             else if (supremaciaMilitar && supremaciaEconomica)  // TODO: supremacia militar
             {
-                nuevaEstrategia = Estrategia.Ofensivo;
-            }
-            else if (!supremaciaMilitar && supremaciaEconomica) 
-            {
-                nuevaEstrategia = Estrategia.Guerrilla;
-            }
-            else if (!supremaciaEconomica && supremaciaMilitar) // TODO : revisar
-            {
-                nuevaEstrategia = Estrategia.Guerrilla;
+                Debug.Log("OFENSIVA");
+                currEstrategia = Estrategia.Ofensivo;
             }
 
-            return nuevaEstrategia;
+            else if (currEstrategia.Equals(Estrategia.Farming))
+            {
+
+            }
+
+            //return nuevaEstrategia;
         }
 
-        private void gestionaEstrategiaOfensiva() 
+        private void gestionaEstrategiaOfensiva()
         {
-            ActualizaPrioridades();
             if (prioMilitar[0].GetCasilla().team_.Equals(ColorTeam.AMARILLO))
             {
                 prioMilitar[0].GetCasilla().GetComponent<Renderer>().material.color = Color.yellow;
@@ -1135,15 +1276,67 @@ namespace es.ucm.fdi.iav.rts.g02
             Mision ataqueAlNexo = new Mision(Comando.AtaqueAlNexo, BaseEnemiga[0].transform, 95, Estrategia.Ofensivo);
             misMisiones.Add(ataqueAlNexo);
 
-            foreach (Batallon batallon in batallones.ToArray())
-            {
-                //  Desmontamos todos los batallones para volver a crearlos
-                batallon.desmontarBatallon(unidadesSinBatallon, batallones);
-            }
+            desmonatarBatallones();
+
             //  Creamos un batallón con todas nuestras unidades para un ataque en conjunto a la mayor prioridad enemiga
             creaBatallon(TipoBatallon.BatallonPuerco, ataqueMayorPrio);
 
             misMisiones.Sort();
+        }
+
+        //  Si tenemos unidades enemigas en cerca de la base o de la factoria -> ataque a estas unidades
+        private void gestionaEstrategiaDefensiva()
+        {
+            if (prioDefensa[0].GetCasilla().team_.Equals(ColorTeam.AMARILLO))
+            {
+                prioDefensa[0].GetCasilla().GetComponent<Renderer>().material.color = Color.yellow;
+            }
+            else
+            {
+                prioDefensa[0].GetCasilla().GetComponent<Renderer>().material.color = Color.blue;
+            }
+
+            Unit enemigoEnBase = amenazaBase();
+            Unit enemigoEnFactoria = amenazaFactoria();
+
+            if (enemigoEnBase != null)
+            {
+                Debug.Log("Enemigo cerca de la base detectado");
+                Mision defensaBase = new Mision(Comando.DefiendeBase, enemigoEnBase.transform, 100, Estrategia.Defensivo);
+                misMisiones.Add(defensaBase);
+                desmonatarBatallones();
+                creaBatallon(TipoBatallon.BatallonAurgar, defensaBase);
+            }
+            if (enemigoEnFactoria != null)
+            {
+                Debug.Log("Enemigo cerca de la factoria detectado");
+                Mision defensaFactoria = new Mision(Comando.DefiedeFactoria, enemigoEnFactoria.transform, 80, Estrategia.Defensivo);
+                misMisiones.Add(defensaFactoria);
+                desmonatarBatallones();
+                creaBatallon(TipoBatallon.BatallonAurgar, defensaFactoria);
+            }
+
+
+            misMisiones.Sort();
+
+        }
+
+        private void gestionarEstrategiaFarm()
+        {
+            desmonatarBatallones();
+            if (MiFactoria.Count > 0)
+            {
+                Mision defiendeFactoria = new Mision(Comando.DefiedeFactoria, MiFactoria[0].transform, 100, Estrategia.Farming);
+                creaBatallon(TipoBatallon.BatallonAurgar, defiendeFactoria);
+                misMisiones.Add(defiendeFactoria);
+            }
+
+            if (MisExtractores.Count > 0)
+            {
+                Mision defiendeExtractor = new Mision(Comando.DefiendeExtractor, MisExtractores[0].getExtractor().transform, 80, Estrategia.Farming);
+                creaBatallon(TipoBatallon.BatallonAurgar, defiendeExtractor);
+                misMisiones.Add(defiendeExtractor);
+            }
         }
 
         //  Devuelve la cantidad de prio de todas las unidades enemigas
@@ -1176,6 +1369,14 @@ namespace es.ucm.fdi.iav.rts.g02
             }
 
             return totalPrioAliada;
+        }
+
+        private void desmonatarBatallones()
+        {
+            foreach (Batallon batallon in batallones.ToArray())
+            {
+                batallon.desmontarBatallon(unidadesSinBatallon, batallones);
+            }
         }
 
         #region gestión
