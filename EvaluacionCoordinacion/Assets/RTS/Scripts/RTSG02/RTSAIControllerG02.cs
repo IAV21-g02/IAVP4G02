@@ -136,7 +136,7 @@ namespace es.ucm.fdi.iav.rts.g02
         Farming,
         //  Defensivo consiste en jugar de forma defensiva ante los ataque enemigos, colocando unidades defendiendo estructuras 
         Defensivo,
-        //  Ofensivo consiste en jugar de forma agresiva, atacando directamente
+        //  Ofensivo consiste en jugar de forma agresiva, atacando directamente a la base enemiga y a las zonas con mayor influencias del enemigo
         Ofensivo,
         //  Guerrilla consiste en ataques de pocas unidades a estructuras, extractores o anidades enemigas y luego reagruparse.
         Guerrilla,
@@ -247,11 +247,6 @@ namespace es.ucm.fdi.iav.rts.g02
         // El método de pensar que sobreescribe e implementa el controlador, para percibir (hacer mapas de influencia, etc.) y luego actuar.
         protected override void Think()
         {
-            // Actualizo el mapa de influencia 
-            // ...
-
-            // Para decidir sobre las órdenes se comprueba que tengo dinero suficiente y que se dan las condiciones que hagan falta...
-            // (Ojo: lo suyo siempre es comprobar que cada llamada tiene sentido y es posible hacerla)
 
             // Aquí se intenta elegir bien la acción a realizar.  
             switch (ThinkStepNumber)
@@ -273,6 +268,7 @@ namespace es.ucm.fdi.iav.rts.g02
         public void Stopthinking()
         {
             ThinkStepNumber = 2;
+            Debug.Log("Partida Terminada");
         }
 
         private void InitController()
@@ -301,28 +297,24 @@ namespace es.ucm.fdi.iav.rts.g02
             // Obtengo lista de accesos limitados
             Recursos = RTSScenarioManager.Instance.LimitedAccesses;
 
-            //Pasamos a AIGameLoop()
-            ThinkStepNumber++;
-
-
-
+            //Inicializamos a parte la lista de los extractores para gestionar mejor su movimiento porque
+            //si no, cuando hay varios que van a la misma casilla para extraer recursos se suelen quedar
+            //"pillados"
             MisExtractores = new List<Extractor>();
             ActualizeGameElements();
 
-
-
-       
-
+            //Envíamos a los estractores que ya tenemos en juego a su objetivo de extraer recursos
+            //teniendo en cuenta lo previamente mentado.
             gestionaExtractores();
 
             estrategiaAnt = Estrategia.NONE;
 
-            // Construyo por primera vez el mapa de influencia (con las 'capas' que necesite)
-            // ...
-            //¿TO DO:?
+            //Pasamos a AIGameLoop()
+            ThinkStepNumber++;
+
         }
 
-        //TO DO: pueeees, todo, pa que nos vamos a engañar :D
+        //TO DO: pueeees, casi todo, pa que nos vamos a engañar :D
         private void AIGameLoop()
         {
             //  Actualizamamos las unidades que hay en juego
@@ -334,11 +326,10 @@ namespace es.ucm.fdi.iav.rts.g02
             if (currEstrategia != estrategiaAnt)
             {
                 estrategiaAnt = currEstrategia;
-                //  Creamos las misiones en función de la nueva estrategía
 
             }
 
-            currEstrategia = Estrategia.Ofensivo;
+            //currEstrategia = Estrategia.Ofensivo;
 
             switch (currEstrategia)
             {
@@ -350,9 +341,10 @@ namespace es.ucm.fdi.iav.rts.g02
                     break;
                 case Estrategia.Farming:
                     gestionaFarm();
-                    //gestionaExtractores();
                     break;
-                    //.....
+                case Estrategia.Guerrilla:
+                    gestionaGuerrilla();
+                    break;
             }
 
 
@@ -366,6 +358,7 @@ namespace es.ucm.fdi.iav.rts.g02
             }
         }
 
+
         private void ActualizeGameElements()
         {
             MiBase = RTSGameManager.Instance.GetBaseFacilities(MyIndex);
@@ -377,6 +370,7 @@ namespace es.ucm.fdi.iav.rts.g02
             }
 
             MisExploradores = RTSGameManager.Instance.GetExplorationUnits(MyIndex);
+
             MisDestructores = RTSGameManager.Instance.GetDestructionUnits(MyIndex);
             //MisExtractores = RTSGameManager.Instance.GetExtractionUnits(MyIndex);
 
@@ -388,7 +382,6 @@ namespace es.ucm.fdi.iav.rts.g02
 
             Torretas = RTSScenarioManager.Instance.Towers;
         }
-
 
 
         //  Devuelve la melange más cerca de una posición
@@ -412,108 +405,295 @@ namespace es.ucm.fdi.iav.rts.g02
         //  Determina qué unidad comprar
         private void gestionaCompra()   //TODO falta el modo emergencia
         {
-            int myMoney = RTSGameManager.Instance.GetMoney(MyIndex);
+            Debug.Log(RTSGameManager.Instance.GetMoney(MyIndex));
             switch (currEstrategia)
             {
-                case Estrategia.Ofensivo:   //Priorizamos la compra de destructores sobre los exploradores
+                case Estrategia.Ofensivo:
+                    compraOfensiva();
+                    break;
 
-                    bool equilibrio = true;
-                    if ((MisDestructores.Count)+2 > (MisExploradores.Count))
-                    {
-                        equilibrio = false;
-                    }
-                    if (equilibrio && myMoney >= RTSGameManager.Instance.DestructionUnitCost &&
-                        MisDestructores.Count - 1 < RTSGameManager.Instance.DestructionUnitsMax )
-                    {
-                        Unit currUnit = RTSGameManager.Instance.CreateUnit(this, MiBase[0], RTSGameManager.UnitType.DESTRUCTION).GetComponent<DestructionUnit>();
-                        //MisDestructores.Add(currUnit.GetComponent<DestructionUnit>());
-                       
-                    }
-                    else if (myMoney >= RTSGameManager.Instance.ExplorationUnitCost &&
-                        MisExploradores.Count - 1 < RTSGameManager.Instance.ExplorationUnitsMax)
-                    {
-                        Unit currUnit = RTSGameManager.Instance.CreateUnit(this, MiBase[0], RTSGameManager.UnitType.EXPLORATION).GetComponent<ExplorationUnit>();
-                       // MisExploradores.Add(currUnit.GetComponent<ExplorationUnit>());
-                        
-                    }
+                case Estrategia.Defensivo:
+                    compraDefensiva();
                     break;
-                case Estrategia.Defensivo:  //Priorizamos la compra de exploradores sobre los destructores
-                    if (myMoney >= RTSGameManager.Instance.ExplorationUnitCost &&
-                            MisExploradores.Count - 1 < RTSGameManager.Instance.ExplorationUnitsMax)
-                    {
-                        Unit currUnit = RTSGameManager.Instance.CreateUnit(this, MiBase[0], RTSGameManager.UnitType.EXPLORATION).GetComponent<ExplorationUnit>();
-                        MisExploradores.Add(currUnit.GetComponent<ExplorationUnit>());
-                        
-                    }
-                    else if (myMoney >= RTSGameManager.Instance.DestructionUnitCost &&
-                            MisDestructores.Count - 1 < RTSGameManager.Instance.DestructionUnitsMax)
-                    {
-                        Unit currUnit = RTSGameManager.Instance.CreateUnit(this, MiBase[0], RTSGameManager.UnitType.DESTRUCTION).GetComponent<DestructionUnit>();
-                        MisDestructores.Add(currUnit.GetComponent<DestructionUnit>());
-                       
-                    }
+
+                case Estrategia.Guerrilla:
+                    compraGuerrilla();
                     break;
-                case Estrategia.Guerrilla:  //Priorizamos la compra de destructores sobre los exploradores
-                    if (myMoney >= RTSGameManager.Instance.ExplorationUnitCost &&
-                            MisExploradores.Count - 1 < RTSGameManager.Instance.ExplorationUnitsMax)
-                    {
-                        Unit currUnit = RTSGameManager.Instance.CreateUnit(this, MiBase[0], RTSGameManager.UnitType.EXPLORATION).GetComponent<ExplorationUnit>();
-                        MisExploradores.Add(currUnit.GetComponent<ExplorationUnit>());
-                       
-                    }
-                    else if (myMoney >= RTSGameManager.Instance.DestructionUnitCost &&
-                            MisDestructores.Count - 1 < RTSGameManager.Instance.DestructionUnitsMax)
-                    {
-                        Unit currUnit = RTSGameManager.Instance.CreateUnit(this, MiBase[0], RTSGameManager.UnitType.DESTRUCTION).GetComponent<DestructionUnit>();
-                        MisDestructores.Add(currUnit.GetComponent<DestructionUnit>());
-                      
-                    }
-                    break;
+
                 case Estrategia.Farming:
-                     equilibrio = true;
-                    if ((MisExtractores.Count) > (MisExploradores.Count) + (MisDestructores.Count))
-                    {
-                        equilibrio = false;
-                    }
-                    if (equilibrio && myMoney >= RTSGameManager.Instance.ExtractionUnitCost &&
-                        MisExtractores.Count - 1 < RTSGameManager.Instance.ExtractionUnitsMax)
-                    {
-                        Extractor actExtractor = new Extractor(RTSGameManager.Instance.CreateUnit(this, MiBase[0], RTSGameManager.UnitType.EXTRACTION).GetComponent<ExtractionUnit>());
-                        MisExtractores.Add(actExtractor);
-                        RTSGameManager.Instance.MoveUnit(this, MisExtractores[MisExtractores.Count - 1].getExtractor(), getMelangeCercana(MiFactoria[0].transform.position).transform.position);
-                    }
-                    else if (myMoney >= RTSGameManager.Instance.ExplorationUnitCost &&
-                        MisExploradores.Count - 1 < RTSGameManager.Instance.ExplorationUnitsMax)
-                    {
-                        Unit currUnit = RTSGameManager.Instance.CreateUnit(this, MiBase[0], RTSGameManager.UnitType.EXPLORATION).GetComponent<ExplorationUnit>();
-                        MisExploradores.Add(currUnit.GetComponent<ExplorationUnit>());
-                     
-                    }
-
+                    compraFarming();
                     break;
+
                 case Estrategia.Emergencia:
 
                     break;
             }
 
         }
-        //TO DO revisar
 
-        //  Moviliza a todos los batallones defensivos que tenga la IA con una misión asignada
-        private void gestionaDefensa()
+        private void compraOfensiva()
         {
-            //if (batallones.Count == 0) return;
-            //foreach (Batallon batallon in batallones)
-            //{
-            //    if (batallon.getEstrategia().Equals(Estrategia.Defensivo))
-            //    {
-            //        batallon.movilizaBatallon(this);
-            //    }
-            //}
+            int myMoney = RTSGameManager.Instance.GetMoney(MyIndex);
+
+            //Priorizamos la compra de destructores sobre los exploradores
+
+            bool equilibrio = true;
+            if ((MisDestructores.Count) > (MisExploradores.Count) + 2)
+            {
+                equilibrio = false;
+            }
+            if (equilibrio && myMoney >= RTSGameManager.Instance.DestructionUnitCost &&
+                MisDestructores.Count - 1 < RTSGameManager.Instance.DestructionUnitsMax)
+            {
+                RTSGameManager.Instance.CreateUnit(this, MiBase[0], RTSGameManager.UnitType.DESTRUCTION).GetComponent<DestructionUnit>();
+
+            }
+            else if (!equilibrio && myMoney >= RTSGameManager.Instance.ExplorationUnitCost &&
+                MisExploradores.Count - 1 < RTSGameManager.Instance.ExplorationUnitsMax)
+            {
+                RTSGameManager.Instance.CreateUnit(this, MiBase[0], RTSGameManager.UnitType.EXPLORATION).GetComponent<ExplorationUnit>();
+
+            }
+            else if (myMoney >= RTSGameManager.Instance.ExtractionUnitCost && MisExploradores.Count - 1 < RTSGameManager.Instance.ExplorationUnitsMax &&
+                MisDestructores.Count - 1 < RTSGameManager.Instance.DestructionUnitsMax)
+            {
+                Extractor actExtractor = new Extractor(RTSGameManager.Instance.CreateUnit(this, MiBase[0], RTSGameManager.UnitType.EXTRACTION).GetComponent<ExtractionUnit>());
+                MisExtractores.Add(actExtractor);
+                RTSGameManager.Instance.MoveUnit(this, MisExtractores[MisExtractores.Count - 1].getExtractor(), getMelangeCercana(MiFactoria[0].transform.position).transform.position);
+            }
         }
 
-        //  Moviliza a todos los batallones ofensivos que tenga la IA con una misión asignada
-        private void gestionaAtaque() // TO DO parar las tropas cuando lleguen al objetivo
+        private void compraFarming()
+        {
+            int myMoney = RTSGameManager.Instance.GetMoney(MyIndex);
+            bool equilibrio = true;
+            if ((MisExtractores.Count) > (MisExploradores.Count) + (MisDestructores.Count))
+            {
+                equilibrio = false;
+            }
+
+            if (equilibrio && myMoney >= RTSGameManager.Instance.ExtractionUnitCost &&
+                MisExtractores.Count - 1 < RTSGameManager.Instance.ExtractionUnitsMax)
+            {
+                Extractor actExtractor = new Extractor(RTSGameManager.Instance.CreateUnit(this, MiBase[0], RTSGameManager.UnitType.EXTRACTION).GetComponent<ExtractionUnit>());
+                MisExtractores.Add(actExtractor);
+                RTSGameManager.Instance.MoveUnit(this, MisExtractores[MisExtractores.Count - 1].getExtractor(), getMelangeCercana(MiFactoria[0].transform.position).transform.position);
+            }
+            else if (!equilibrio && myMoney >= RTSGameManager.Instance.ExplorationUnitCost &&
+                MisExploradores.Count - 1 < RTSGameManager.Instance.ExplorationUnitsMax)
+            {
+                RTSGameManager.Instance.CreateUnit(this, MiBase[0], RTSGameManager.UnitType.EXPLORATION).GetComponent<ExplorationUnit>();
+
+            }
+        }
+
+        private void compraDefensiva()
+        {
+            int myMoney = RTSGameManager.Instance.GetMoney(MyIndex);
+            //Priorizamos la compra de exploradores sobre los destructores
+            if (myMoney >= RTSGameManager.Instance.ExplorationUnitCost &&
+                    MisExploradores.Count - 1 < RTSGameManager.Instance.ExplorationUnitsMax)
+            {
+                Unit currUnit = RTSGameManager.Instance.CreateUnit(this, MiBase[0], RTSGameManager.UnitType.EXPLORATION).GetComponent<ExplorationUnit>();
+
+            }
+            else if (myMoney >= RTSGameManager.Instance.DestructionUnitCost &&
+                    MisDestructores.Count - 1 < RTSGameManager.Instance.DestructionUnitsMax)
+            {
+                Unit currUnit = RTSGameManager.Instance.CreateUnit(this, MiBase[0], RTSGameManager.UnitType.DESTRUCTION).GetComponent<DestructionUnit>();
+
+            }
+            else if (myMoney >= RTSGameManager.Instance.ExtractionUnitCost && MisExploradores.Count - 1 < RTSGameManager.Instance.ExplorationUnitsMax &&
+                MisDestructores.Count - 1 < RTSGameManager.Instance.DestructionUnitsMax)
+            {
+                Extractor actExtractor = new Extractor(RTSGameManager.Instance.CreateUnit(this, MiBase[0], RTSGameManager.UnitType.EXTRACTION).GetComponent<ExtractionUnit>());
+                MisExtractores.Add(actExtractor);
+                RTSGameManager.Instance.MoveUnit(this, MisExtractores[MisExtractores.Count - 1].getExtractor(), getMelangeCercana(MiFactoria[0].transform.position).transform.position);
+            }
+        }
+
+        private void compraGuerrilla()
+        {
+            int myMoney = RTSGameManager.Instance.GetMoney(MyIndex);
+            //Priorizamos la compra de destructores sobre los exploradores
+            if (myMoney >= RTSGameManager.Instance.ExplorationUnitCost &&
+                    MisExploradores.Count - 1 < RTSGameManager.Instance.ExplorationUnitsMax)
+            {
+                RTSGameManager.Instance.CreateUnit(this, MiBase[0], RTSGameManager.UnitType.EXPLORATION).GetComponent<ExplorationUnit>();
+
+            }
+            else if (myMoney >= RTSGameManager.Instance.DestructionUnitCost &&
+                    MisDestructores.Count - 1 < RTSGameManager.Instance.DestructionUnitsMax)
+            {
+                RTSGameManager.Instance.CreateUnit(this, MiBase[0], RTSGameManager.UnitType.DESTRUCTION).GetComponent<DestructionUnit>();
+
+            }
+            else if (myMoney >= RTSGameManager.Instance.ExtractionUnitCost && MisExploradores.Count - 1 < RTSGameManager.Instance.ExplorationUnitsMax &&
+                MisDestructores.Count - 1 < RTSGameManager.Instance.DestructionUnitsMax)
+            {
+                Extractor actExtractor = new Extractor(RTSGameManager.Instance.CreateUnit(this, MiBase[0], RTSGameManager.UnitType.EXTRACTION).GetComponent<ExtractionUnit>());
+                MisExtractores.Add(actExtractor);
+                RTSGameManager.Instance.MoveUnit(this, MisExtractores[MisExtractores.Count - 1].getExtractor(), getMelangeCercana(MiFactoria[0].transform.position).transform.position);
+            }
+        }
+
+        private void gestionaDefensa()
+        {
+            Unit enemigoEnFactoria = amenazaFactoria();
+            Unit enemigoEnBase = amenazaBase();
+
+
+            //Ambas están en peligro
+            if (enemigoEnBase && enemigoEnFactoria)
+            {
+                if (MisDestructores.Count > 0)
+                {
+                    int numdest = MisDestructores.Count;
+                    int porcentaje = (int)(numdest * 0.5); //50% de las tropas destructoras a la base
+                    if (MiBase.Count > 0)
+                    {
+                        for (int i = 0; i < porcentaje; i++)
+                        {
+
+                            Transform obj = MiBase[0].transform;
+                            Vector3 dist = MisDestructores[i].transform.position - obj.position;
+                            if (MisDestructores[i].Radius < dist.magnitude)
+                            {
+                                MisDestructores[i].Move(this, obj);
+                            }
+                            else MisDestructores[i].Stop(this);
+
+                        }
+                    }
+
+                    if (MiFactoria.Count > 0)
+                    {
+                        for (int j = porcentaje; j < (int)(numdest * 0.7); j++) //20% de las tropas destructoras
+                        {
+                            Vector3 dist = MisDestructores[j].transform.position - MiFactoria[0].transform.position;
+                            if (MisDestructores[j].Radius < dist.magnitude)
+                                MisDestructores[j].Move(this, MiBase[0].transform);
+                            else MisDestructores[j].Stop(this);
+
+                        }
+                    }
+
+                }
+
+                if (MisExploradores.Count > 0)
+                {
+
+                    int numdest = MisExploradores.Count;
+                    int porcentaje = (int)(numdest * 0.3); //30%
+                    if (MiBase.Count > 0)
+                    {
+                        for (int i = 0; i < porcentaje; i++)
+                        {
+                            Transform obj = MiBase[0].transform;
+                            Vector3 dist = MisExploradores[i].transform.position - obj.position;
+                            if (MisExploradores[i].Radius < dist.magnitude)
+                            {
+                                MisExploradores[i].Move(this, obj);
+                            }
+                            else MisExploradores[i].Stop(this);
+
+                        }
+                    }
+
+                    if (MiFactoria.Count > 0)
+                    {
+                        for (int j = porcentaje; j < (int)(numdest * 0.5); j++) //20% de los exploradores
+                        {
+                            Vector3 dist = MisExploradores[j].transform.position - MiFactoria[0].transform.position;
+                            if (MisExploradores[j].Radius < dist.magnitude)
+                                MisExploradores[j].Move(this, MiBase[0].transform);
+                            else MisExploradores[j].Stop(this);
+
+                        }
+                    }
+                }
+            }
+            //Solo la factoria está en peligro
+            else if (enemigoEnFactoria)
+            {
+                if (MisDestructores.Count > 0 && MiFactoria.Count > 0)
+                {
+                    int numdest = MisDestructores.Count;
+                    int porcentaje = (int)(numdest * 0.5);
+                    for (int i = 0; i < porcentaje; i++)
+                    {
+
+                        Transform obj = MiFactoria[0].transform;
+                        Vector3 dist = MisDestructores[i].transform.position - obj.position;
+                        if (MisDestructores[i].Radius < dist.magnitude)
+                        {
+                            MisDestructores[i].Move(this, obj);
+                        }
+                        else MisDestructores[i].Stop(this);
+
+                    }
+                }
+
+                if (MisExploradores.Count > 0 && MiFactoria.Count > 0)
+                {
+                    int numdest = MisExploradores.Count;
+                    int porcentaje = (int)(numdest * 0.5);
+
+                    for (int i = 0; i < porcentaje; i++)
+                    {
+                        Transform obj = MiFactoria[0].transform;
+                        Vector3 dist = MisExploradores[i].transform.position - obj.position;
+                        if (MisExploradores[i].Radius < dist.magnitude)
+                        {
+                            MisExploradores[i].Move(this, obj);
+                        }
+                        else MisExploradores[i].Stop(this);
+
+                    }
+                }
+            }
+            //Solo la base está en peligro
+            else if (enemigoEnBase)
+            {
+                if (MisDestructores.Count > 0 && MiBase.Count > 0)
+                {
+                    int numdest = MisDestructores.Count;
+                    int porcentaje = (int)(numdest * 0.5);
+                    for (int i = 0; i < porcentaje; i++)
+                    {
+                        Transform obj = MiBase[0].transform;
+                        Vector3 dist = MisDestructores[i].transform.position - obj.position;
+                        if (MisDestructores[i].Radius < dist.magnitude)
+                        {
+                            MisDestructores[i].Move(this, obj);
+                        }
+                        else MisDestructores[i].Stop(this);
+                    }
+                }
+
+                if (MisExploradores.Count > 0 && MiBase.Count > 0)
+                {
+                    int numdest = MisExploradores.Count;
+                    int porcentaje = (int)(numdest * 0.5);
+
+                    for (int i = 0; i < porcentaje; i++)
+                    {
+                        Transform obj = MiBase[0].transform;
+                        Vector3 dist = MisExploradores[i].transform.position - obj.position;
+                        if (MisExploradores[i].Radius < dist.magnitude)
+                        {
+                            MisExploradores[i].Move(this, obj);
+                        }
+                        else MisExploradores[i].Stop(this);
+
+                    }
+
+                }
+            }
+
+        }
+
+        private void gestionaAtaque()
         {
             if (MisDestructores.Count > 0)
             {
@@ -523,24 +703,23 @@ namespace es.ucm.fdi.iav.rts.g02
                 {
                     if (MapManager.GetInstance().getEnemyMaxPrio(myType))
                     {
-                        Vector3 obj = MapManager.GetInstance().getEnemyMaxPrio(myType).transform.position;
-                        if (MisDestructores[i].Radius > (MisDestructores[i].transform.position - obj).magnitude)
+                        Transform obj = MapManager.GetInstance().getEnemyMaxPrio(myType).transform;
+                        Vector3 dist = MisDestructores[i].transform.position - obj.position;
+                        if (MisDestructores[i].Radius < dist.magnitude)
                         {
-                        MisDestructores[i].Move(this, MapManager.GetInstance().getEnemyMaxPrio(myType).transform.position);
-
+                            MisDestructores[i].Move(this, obj);
                         }
-                        else MisDestructores[i].Attack(this, MapManager.GetInstance().getEnemyMaxPrio(myType).transform.position);
-
+                        else MisDestructores[i].Attack(this, obj);
 
                     }
                 }
 
                 for (int j = porcentaje; j < numdest; j++)
                 {
-
-                    MisDestructores[j].Move(this, BaseEnemiga[0].transform.position);
-                    Debug.Log("voy a base " + j );
-                    Debug.Log("desde " + MisDestructores[j].transform.position+ " hasta " + BaseEnemiga[0].transform.position);
+                    Vector3 dist = MisDestructores[j].transform.position - BaseEnemiga[0].transform.position;
+                    if (MisDestructores[j].Radius < dist.magnitude)
+                        MisDestructores[j].Move(this, BaseEnemiga[0].transform);
+                    else MisDestructores[j].Attack(this, BaseEnemiga[0].transform);
 
                 }
             }
@@ -553,20 +732,24 @@ namespace es.ucm.fdi.iav.rts.g02
                 {
                     if (MapManager.GetInstance().getEnemyMaxPrio(myType))
                     {
-                        MisExploradores[i].Move(this, MapManager.GetInstance().getEnemyMaxPrio(myType).transform.position);
+                        Transform obj = MapManager.GetInstance().getEnemyMaxPrio(myType).transform;
+                        Vector3 dist = MisExploradores[i].transform.position - obj.position;
+                        if (MisExploradores[i].Radius < dist.magnitude)
+                            MisExploradores[i].Move(this, obj);
+                        else MisExploradores[i].Stop(this);
 
                     }
                 }
-                int e = 0;
+
                 for (int j = porcentaje; j < numdest; j++)
                 {
-
-                    MisExploradores[j].Move(this, BaseEnemiga[0].transform.position);
-
+                    Vector3 dist = MisExploradores[j].transform.position - BaseEnemiga[0].transform.position;
+                    if (MisExploradores[j].Radius < dist.magnitude)
+                        MisExploradores[j].Move(this, BaseEnemiga[0].transform);
+                    else MisExploradores[j].Stop(this);
                 }
             }
         }
-
 
         private void gestionaFarm() // TO DO parar las tropas cuando lleguen al objetivo
         {
@@ -608,6 +791,55 @@ namespace es.ucm.fdi.iav.rts.g02
             }
         }
 
+        private void gestionaGuerrilla()
+        {
+            if (MisDestructores.Count != 0)
+            {
+                int numdest = MisDestructores.Count;
+                int porcentaje = (int)(numdest * 0.5);
+                if (FactoriaEnemiga.Count > 0)
+                {
+                    for (int i = 0; i < porcentaje; i++)
+                    {
+                        MisDestructores[i].Move(this, FactoriaEnemiga[0].transform.position);
+                    }
+                }
+                int e = 0;
+
+                if (ExtractoresEnemigos.Count > 0)
+                {
+                    for (int j = porcentaje; j < numdest; j++)
+                    {
+                        if (e >= ExtractoresEnemigos.Count) e = 0;
+                        MisDestructores[j].Move(this, ExtractoresEnemigos[e].transform.position);
+                        e++;
+                    }
+                }
+            }
+
+            if (MisExploradores.Count != 0)
+            {
+                int numdest = MisExploradores.Count;
+                int porcentaje = (int)(numdest * 0.5);
+                if (FactoriaEnemiga.Count > 0)
+                {
+                    for (int i = 0; i < porcentaje; i++)
+                    {
+                        MisExploradores[i].Move(this, FactoriaEnemiga[0].transform.position);
+                    }
+                }
+                if (ExtractoresEnemigos.Count > 0)
+                {
+                    int e = 0;
+                    for (int j = porcentaje; j < numdest; j++)
+                    {
+                        if (e >= ExtractoresEnemigos.Count) e = 0;
+                        MisExploradores[j].Move(this, ExtractoresEnemigos[e].transform.position);
+                        e++;
+                    }
+                }
+            }
+        }
         private void gestionaExtractores()
         {
             foreach (Extractor extractor in MisExtractores)
@@ -648,7 +880,6 @@ namespace es.ucm.fdi.iav.rts.g02
         {
             return myType;
         }
-
 
 
         //  Determina si hay unidades enemigas cerca de base y te devuelve la unidad enemiga más cercana 
@@ -721,91 +952,66 @@ namespace es.ucm.fdi.iav.rts.g02
             return enemigo;
         }
 
-
         private void eligeEstrategia()
         {
-            bool supremaciaEconomica = RTSGameManager.Instance.GetMoney(MyIndex) > 100000 + RTSGameManager.Instance.GetMoney(FirstEnemyIndex);
+            //TO DO: ajustar valores de dinero y tal :)
+            bool supremaciaEconomica = RTSGameManager.Instance.GetMoney(MyIndex) > 30000 + RTSGameManager.Instance.GetMoney(FirstEnemyIndex);
             bool supremaciaMilitar = false;
-            if (getTotalPrioAliada() > getTotalPrioEnemiga())
+
+            //TO DO: Ajustar aqui tb
+            if (getTotalPrioAliada() > getTotalPrioEnemiga() + 6)
             {
                 supremaciaMilitar = true;
             }
 
-            bool equilibrio = true;
-            if ((MisExtractores.Count - 1) >= (MisExploradores.Count - 1) + (MisDestructores.Count - 1))
-            {
-                equilibrio = false;
-            }
-
-            bool amenazaCercana;
             Unit enemigoEnBase = amenazaBase();
             Unit enemigoEnFactoria = amenazaFactoria();
-            amenazaCercana = enemigoEnBase != null || enemigoEnFactoria != null;
+            bool amenazaCercana = enemigoEnBase != null || enemigoEnFactoria != null;
 
-            if (amenazaCercana)
+            //Prioridad absoluta al estado de emergencia cuando no contamos con pocas unidades de unidades
+            if (MisDestructores.Count + MisExploradores.Count < 3)
+            {
+                //Si además contamos con pocos exploradores, priorizamos su compra pasando al estado farming
+                if (MisExploradores.Count <= 1) currEstrategia = Estrategia.Farming;
+                //Si no, entramos directamente en emergencia
+                else currEstrategia = Estrategia.Emergencia;
+            }
+            //amenazas cerca de la base o de la factoria
+            else if (amenazaCercana)
             {
                 Debug.Log("AMENAZA DETECTADA");
                 currEstrategia = Estrategia.Defensivo;
             }
-            else if (equilibrio && !supremaciaEconomica && !supremaciaMilitar)
+            //Si mi enemigo se ha quedado sin unidades o tiene pocas ofensivas pasamos a modo full ofensivo
+            else if (ExploradoresEnemigos.Count + DestructoresEnemigos.Count <=2 )
+            {
+                Debug.Log("OFENSIVA");
+                currEstrategia = Estrategia.Ofensivo;
+            }
+            //Cuando no contamos ni con las unidades ni con los recursos necesarios
+            //para un ataque decente, pero no nos encontramos bajo amenaza
+            else if (!supremaciaMilitar && (!supremaciaEconomica || MisExtractores.Count <= 1))
             {
                 Debug.Log("FARMING");
                 currEstrategia = Estrategia.Farming;
             }
-            else if (!supremaciaMilitar && supremaciaEconomica)
+            //En Guerrilla se prioriza atacar a los extractores y a la factoria enemiga, por lo tanto si no hay extractores
+            //o factoria enemiga no tiene sentido atacarla
+            else if (supremaciaMilitar && !supremaciaEconomica &&
+                FactoriaEnemiga.Count > 0 && ExtractoresEnemigos.Count > 0)
             {
                 Debug.Log("GUERRILLA");
                 currEstrategia = Estrategia.Guerrilla;
             }
-            else if (supremaciaMilitar && supremaciaEconomica)  // TODO: supremacia militar
+            //En el caso que tengamos ventaja en todo pasamos al modo full ofensivo
+            else if (supremaciaMilitar)
             {
                 Debug.Log("OFENSIVA");
                 currEstrategia = Estrategia.Ofensivo;
             }
 
-
-
-            //return nuevaEstrategia;
         }
 
-        //  Si tenemos unidades enemigas en cerca de la base o de la factoria -> ataque a estas unidades
-        private void gestionaEstrategiaDefensiva()
-        {
-        //    if (prioDefensa[0].GetCasilla().team_.Equals(ColorTeam.AMARILLO))
-        //    {
-        //        prioDefensa[0].GetCasilla().GetComponent<Renderer>().material.color = Color.yellow;
-        //    }
-        //    else
-        //    {
-        //        prioDefensa[0].GetCasilla().GetComponent<Renderer>().material.color = Color.blue;
-        //    }
-
-        //    Unit enemigoEnBase = amenazaBase();
-        //    Unit enemigoEnFactoria = amenazaFactoria();
-
-        //    if (enemigoEnBase != null)
-        //    {
-        //        Debug.Log("Enemigo cerca de la base detectado");
-        //        Mision defensaBase = new Mision(Comando.DefiendeBase, enemigoEnBase.transform, 100, Estrategia.Defensivo);
-        //        misMisiones.Add(defensaBase);
-        //        //desmonatarBatallones();
-        //        //creaBatallon(TipoBatallon.BatallonAurgar, defensaBase);
-        //    }
-        //    if (enemigoEnFactoria != null)
-        //    {
-        //        Debug.Log("Enemigo cerca de la factoria detectado");
-        //        Mision defensaFactoria = new Mision(Comando.DefiedeFactoria, enemigoEnFactoria.transform, 80, Estrategia.Defensivo);
-        //        misMisiones.Add(defensaFactoria);
-        //        //desmonatarBatallones();
-        //        //creaBatallon(TipoBatallon.BatallonAurgar, defensaFactoria);
-        //    }
-
-
-        //    misMisiones.Sort();
-
-        }
-
-        
         //  Devuelve la cantidad de prio de todas las unidades enemigas
         private int getTotalPrioEnemiga()
         {
@@ -838,6 +1044,6 @@ namespace es.ucm.fdi.iav.rts.g02
             return totalPrioAliada;
         }
 
-   
+
     }
 }

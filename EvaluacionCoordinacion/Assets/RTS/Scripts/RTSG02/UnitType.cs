@@ -20,6 +20,12 @@ namespace es.ucm.fdi.iav.rts.g02
         [Tooltip("Rango de influencia de esta unidad")]
         public int rango = 0;
 
+        //Referencia a la casilla en la que nos encontrabamos en la iteracion anterior
+        private CasillaBehaviour curCasilla;
+        //Referencia a la casilla en la que nos encontramos en la iteracion actual
+        private CasillaBehaviour prevCasilla;
+
+
         //  Constructor por copia
         public UnitType(UnitType unitCopy)
         {
@@ -33,5 +39,30 @@ namespace es.ucm.fdi.iav.rts.g02
         {
             return unitOwner;
         }
+
+        //Gestión del movimiento de las unidades para actualizar el mapa de influencia
+        private void Update()
+        {
+            curCasilla = MapManager.GetInstance().GetCasillaCercana(transform);
+
+            //Ha habido cambio de casilla
+            if(prevCasilla != null && curCasilla != prevCasilla)
+            {
+                MapManager.GetInstance().ActualizaPrioridadAlSalir(prevCasilla, this);
+                MapManager.GetInstance().ActualizaPrioridadAlEntrar(curCasilla, this);
+            }
+            //Si la prevCasilla es null, significa que estamos en la primera iteración del bucle
+            else if(prevCasilla == null) MapManager.GetInstance().ActualizaPrioridadAlEntrar(curCasilla, this);
+
+            prevCasilla = curCasilla;
+
+        }
+
+        private void OnDestroy()
+        {
+            //Cuando se destruye esta entidad hay que quitar los valores de influencia de la misma en el mapa
+            MapManager.GetInstance().ActualizaPrioridadAlSalir(prevCasilla, this);
+        }
+
     }
 };

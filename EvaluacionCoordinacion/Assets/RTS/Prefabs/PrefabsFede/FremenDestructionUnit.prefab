@@ -110,7 +110,7 @@ MonoBehaviour:
   _maxPositions: 20
   _radius: 8
   _attackDamage: 10
-  _attackTime: 2
+  _attackTime: 0.5
   _attackDistance: 15
 --- !u!54 &-8770835171561959098
 Rigidbody:

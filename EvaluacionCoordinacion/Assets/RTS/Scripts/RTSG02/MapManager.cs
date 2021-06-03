@@ -20,12 +20,16 @@ namespace es.ucm.fdi.iav.rts.g02
         //  Terrain del escenario
         private Terrain terrain;
 
+        Vector3 posIni;
+
         private CasillaBehaviour MaxprioAzul;
         private CasillaBehaviour MaxprioAmarillo;
 
         //  GameObject usado para instanciar el mapa
         [Tooltip("Prefab de las casillas")]
         public GameObject ejemplo;
+
+        public Grid getMapGrid() { return grid; }
 
         private void Awake()
         {
@@ -67,10 +71,8 @@ namespace es.ucm.fdi.iav.rts.g02
                     currCasilla.transform.localPosition = pos;
                     matriz[i, j] = currCasilla.GetComponent<CasillaBehaviour>();
                     matriz[i, j].setMatrixPos(i, j);
-                    if (i == 0 && j == 0)
-                    {
-                        Debug.Log(matriz[i, j].transform.position);
-                    }
+                    if (i == 0 && j == 0) posIni = matriz[i, j].transform.position;
+                    
                 }
             }
         }
@@ -139,27 +141,30 @@ namespace es.ucm.fdi.iav.rts.g02
                 {
                     for (int i = 0; i < transform.childCount; i++)
                     {
-                        transform.GetChild(i).gameObject.SetActive(false);
+                        transform.GetChild(i).gameObject.GetComponent<Renderer>().enabled = false;
                     }
                 }
                 else
                 {
                     for (int i = 0; i < transform.childCount; i++)
                     {
-                        transform.GetChild(i).gameObject.SetActive(true);
+                        transform.GetChild(i).gameObject.GetComponent<Renderer>().enabled = true;
                     }
                 }
 
                 visible = !visible;
             }
         }
-        //  Devuelve la casilla en función de un transform
-        //public CasillaBehaviour GetCasillaCercana(Transform pos)
-        //{
-        //    int indX = Mathf.Abs((int)(pos.position.x / grid.cellSize.x));
-        //    int indZ = Mathf.Abs((int)(pos.position.z / grid.cellSize.z));
-        //    return matriz[indX, indZ];
-        //}
+
+        //Devuelve la casilla en función de un transform
+        public CasillaBehaviour GetCasillaCercana(Transform pos)
+        {
+            int indX = Mathf.Abs((int)((pos.position.x - posIni.x) / grid.cellSize.x));
+            int indZ = Mathf.Abs((int)((pos.position.z - posIni.z) / grid.cellSize.z));
+
+            return matriz[indX, indZ];
+        }
+
         public CasillaBehaviour getEnemyMaxPrio(ColorTeam team)
         {
 
@@ -171,6 +176,11 @@ namespace es.ucm.fdi.iav.rts.g02
             {
                 return MaxprioAmarillo;
             }
+        }
+
+        public void ActualizarMapaInfluencia()
+        {
+
         }
     }
 };

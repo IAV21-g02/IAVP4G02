@@ -12,8 +12,6 @@ namespace es.ucm.fdi.iav.rts.g02
         public ColorTeam team_;
         //  influencia del equipo que domina esta casilla
         public int currMiliPrio;
-        //  Número de unidades presentes en la casilla
-        public int unidadesCasilla;
 
         //  Fila que representa a esta casilla en vector de mapManager
         private int fil;
@@ -40,39 +38,15 @@ namespace es.ucm.fdi.iav.rts.g02
 
         private void Start()
         {
-            currMiliPrio = 0;
-
-            unidadesCasilla = 0;
+            currMiliPrio = 0;            
             team_ = ColorTeam.VACIA;
             
-
             CambiaCasillaColor();
  
             //Datos de prioridad y ataque IComparer
             casillaPrioAtq = new CasillaPrioAtaque(this);
             casillaPrioDef= new CasillaPrioDefensa(this);
         }
-
-        private void OnTriggerEnter(Collider other)
-        {
-            UnitType unit = other.gameObject.GetComponent<UnitType>();
-            if (unit)
-            {
-                MapManager.GetInstance().ActualizaPrioridadAlEntrar(this, unit);
-                
-            }
-        }
-
-        private void OnTriggerExit(Collider other)
-        {
-            UnitType unit = other.gameObject.GetComponent<UnitType>();
-            if (unit)
-            {
-                MapManager.GetInstance().ActualizaPrioridadAlSalir(this, unit);
-            }
-        }
-
-        //----------------------------------------------------------------------------------//
 
         //  Gestiona la entrada de una unidad a esta casilla
         public void UnidadEntraCasilla(UnitType unit_, int influ)
@@ -270,6 +244,11 @@ namespace es.ucm.fdi.iav.rts.g02
                 currMiliPrio = 0;
             }
 
+            if (prioridadAmarilla < 0) prioridadAmarilla = 0;
+            if (prioridadAzul < 0) prioridadAzul = 0;
+            if (prioridadVerde < 0) prioridadVerde = 0;
+
+
             //Si es del mismo tipo que la casilla, la casilla es neutral o está vacía
             if (teamType_.Equals(team_) || team_.Equals(ColorTeam.NEUTRAL) || team_.Equals(ColorTeam.VACIA))
             {
@@ -335,6 +314,10 @@ namespace es.ucm.fdi.iav.rts.g02
             {
                 currMiliPrio = 0;
             }
+
+            if (prioridadAmarilla < 0) prioridadAmarilla = 0;
+            if (prioridadAzul < 0) prioridadAzul = 0;
+            if (prioridadVerde < 0) prioridadVerde = 0;
 
             // si salgo en una casilla de mi equipo o neutral
             if (teamType_.Equals(team_) || team_.Equals(ColorTeam.NEUTRAL))
