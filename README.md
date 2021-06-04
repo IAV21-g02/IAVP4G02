@@ -124,6 +124,10 @@ Algunas de  partidas que hemos probado de este tipo siguen el modelo anterior (f
 
 Sin embargo en ocasiones nos surge el problema de que ambas se quedan farmeando y nunca se lanzan al ataque, creando un problema de inactividad.
 
+Haciendo click en la siguiente imagen puedes ver un fragmento del combate entre nuestras dos IAs.
+
+[![image](https://user-images.githubusercontent.com/48771457/120862407-2cef3e00-c589-11eb-961e-84bda22dcd08.png)](https://youtu.be/k_0SW7AxpSw)
+
 
 ### 4.5.- Combate en un escenario distinto al inicial
 
