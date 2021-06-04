@@ -39,7 +39,7 @@ Para la creación del mapa de influencia del escenario hemos desarrollado los si
 
 ![Captura de pantalla 2021-06-03 133150](https://user-images.githubusercontent.com/48771457/120638269-35a02100-c470-11eb-94b7-382f41829d09.png)
 
-Por otro lado, la actualización de dicha influencia se gestiona cada vez que una unidad de cualquier tipo sale o entra de dicha casilla. Nuestro primer acercamiento a la idea consistía en comprobar la colisión de las unidades mediante el uso de los métodos **OTriggerEnter()** y **OnTriggerExit()** de Unity. Sin embargo, esta implementación pese a funcionar correctamente a la hora de desplazar a las unidades nos generaba conflictos a la hora de atacar. Esto se debe a que el árbol de comportamiento interpretaba nuestras casillas como objetivos de ataque y al no contar con el script health ni ser una unidad se quedaba confuso y hacía que las tropas no disparasen. Finalmente conseguimos arreglar sin muchas dificultades el problema con la creación del método **GetCasillaCercana()** que podemos ver a continuación.
+Por otro lado, la actualización de dicha influencia se gestiona cada vez que una unidad de cualquier tipo sale o entra de dicha casilla. Nuestro primer acercamiento a la idea consistía en comprobar la colisión de las unidades mediante el uso de los métodos **OnTriggerEnter()** y **OnTriggerExit()** de Unity. Sin embargo, esta implementación pese a funcionar correctamente a la hora de desplazar a las unidades nos generaba conflictos a la hora de atacar. Esto se debe a que el árbol de comportamiento interpretaba nuestras casillas como objetivos de ataque y al no contar con el script health ni ser una unidad se quedaba confuso y hacía que las tropas no disparasen. Finalmente conseguimos arreglar sin muchas dificultades el problema con la creación del método **GetCasillaCercana()** que podemos ver a continuación.
 
 ![Captura de pantalla 2021-06-04 100824](https://user-images.githubusercontent.com/48771457/120768867-df3cec00-c51c-11eb-8c1f-e2b144f16a09.png)
 
@@ -56,7 +56,7 @@ Por otro lado, la actualización de dicha influencia se gestiona cada vez que un
 
 ## 3.-Controlador de tropas
 
-Durante el transcurso de la práctica hemos desarrollado 3 versiones distintas de controlador de tropas. La gestión hecha mediante batallones fue finalmente descartada debido a la complejidad de su implementación. Sin embargo, consideramos relevante su mención pese a no ser funcional, puesto que partía de una base bastante razonada y trabajada.
+Durante el transcurso de la práctica hemos desarrollado 2 versiones distintas de controlador de tropas. La gestión hecha mediante batallones fue finalmente descartada debido a la complejidad de su implementación. Sin embargo, consideramos relevante su mención pese a no ser funcional, puesto que partía de una base bastante razonada y trabajada.
 
 ### 3.1.- Gestión de tropas mediante Batallones
 
@@ -78,11 +78,11 @@ Nuestro controlador basa su estrategia de manejo y compra de unidades en base a 
 
 - **Defensivo**: en el momento en el que nuestra base o la factoría se encuentren bajo las hordas del equipo rival pasaremos al estado defensa. En este estado enviaremos a nuestras tropas ofensivas a defender nuestras instalaciones priorizado la defensa de la base (50% de nuestras tropas ofensivas frente al 20% que se encargaran de la defensa de la factoría) en caso de que ambas instalaciones estén siendo atacadas. Puesto que es más sencillo entrar en este estado que en el de ataque, no vamos a enviar al 100% de nuestras tropas a defender y estas continuaran con la tarea que les fue asignada en el estado anterior (defender exploradores para tratar de conseguir mas recursos, atacar a la base rival etc.) En cuanto a la gestión de la compra durante este estado, priorizaremos la compra de exploradores, las unidades ofensivas mas baratas para contar con el mayor numero de tropas posibles para defender nuestras infraestructuras, seguido de los destructores y finalmente los extractores.
 
-- **Farming**: es el estado en el que comenzaremos por defecto cualquier partida. El objetivo durante este estado consiste en conseguir recursos económicos suficientes que luego pudiesemos invertir en mejores tropas para comenzar una estrategia más ofensiva como es el caso de **Guerrilla** o **Ofensiva**. Por lo tanto, una de las prioridades de este estado consiste en defender a nuestras unidades extractoras para así conseguir rápidamente la mayor cantidad de Solaris posibles. En este estado también las unidades se dedicarán a defender la factoria puesto que si esta es destruida seremos incapaces de ahorrar mas Solaris y todas nuestras unidades extractoras se volveran inútiles. La estrategia de compra a seguir se basará en priorizar la compra de extractores, para asi acelerar la produccion de solaris, y en caso de tener suficientes extractores, seguir comprando exploradores para defender y no quedarnos indefensos
+- **Farming**: es el estado en el que comenzaremos por defecto cualquier partida. El objetivo durante este estado consiste en conseguir recursos económicos suficientes que luego pudiesemos invertir en mejores tropas para comenzar una estrategia más ofensiva como es el caso de **Guerrilla** o **Ofensiva**. Por lo tanto, una de las prioridades de este estado consiste en defender a nuestras unidades extractoras para así conseguir rápidamente la mayor cantidad de Solaris posibles. En este estado también las unidades se dedicarán a defender la factoria puesto que si esta es destruida seremos incapaces de ahorrar mas Solaris y todas nuestras unidades extractoras se volveran inútiles. La estrategia de compra a seguir se basará en priorizar la compra de extractores, para asi acelerar la producción de Solaris, y en caso de tener suficientes extractores, seguir comprando exploradores para defender y no quedarnos indefensos.
 
-- **Guerilla**: pasaremos a este estado en el momento en el que tengamos tropas suficientes pero no el dinero suficiente como para tener garantias de hacer un ataque directo,pasaremos en ese momento a atacar los extractores del enemigo para disminuir su capacidad de conseguir solaris y lograr una ventaja economica sobre él.En cuanto a la compra, en este estado nos centraremos en comprar primero destructores para aumentar nuestra fuerza de ataque rapidamente, y cuando tengamos suficientes seguiremos con la compra de exploradores.
+- **Guerilla**: pasaremos a este estado en el momento en el que tengamos tropas suficientes pero no el dinero suficiente como para tener garantías de hacer un ataque directo. En ese momento comenzaremos a atacar los extractores del enemigo para disminuir su capacidad de conseguir solaris y lograr una ventaja económica sobre él.En cuanto a la compra, en este estado nos centraremos en adquirir primero destructores para aumentar nuestra fuerza de ataque rápidamente, y cuando tengamos suficientes seguiremos con la compra de exploradores.
 
-- **Emergencia**: si nos encontramos en una situación en la que nuestras tropas sean demasiado escasas,consideraremos que pasamos a un estado de emergencia, y que de forma urgente debemos aumentar nuestras tropas.En cuanto a la estrategia sera igual que la del farming, nos dedicaremos a defender los extractores y la factoria para asegurarnos el tener dinero suficiente como para comprar nuevas tropas. Sin embargo en la compra priorizaremos los destructores para ampliar nuestra fuerza de ataque lo mas rapido posible.
+- **Emergencia**: si nos encontramos en una situación en la que nuestras tropas sean demasiado escasas, pasamos a un estado de emergencia en el que de forma urgente debemos aumentar nuestras tropas. En cuanto a la estrategia sera igual que la del farming, nos dedicaremos a defender los extractores y la factoria para asegurarnos el tener dinero suficiente como para comprar nuevas tropas. Sin embargo, en la compra priorizaremos los destructores para ampliar nuestra fuerza de ataque lo mas rápido posible.
 
 ## 4.-Pruebas realizadas
 ### 4.1.- Pruebas iniciales
@@ -97,7 +97,7 @@ Puesto que uno de los apartados de la práctica especifica concretamente realiza
 
 Una de ellas es no poder empezar la partida con dinero negativo o 0 y no contar con extractores inicialmente. En ese caso la única opción con la que contamos para ganar dicha partida es mandar a todas nuestras tropas a atacar la base enemiga para tratar de destruirla y ganarla de la forma más rápida posible, puesto que no podemos conseguir dinero para comprar más recursos. Como esta situación también puede darse durante el transcurso de una partida, añadimos una comprobación extra en el método que se encarga de cambiar el estado del controlador. En la siguiente imagen mostramos el fragmento de código correspondiente a esta comprobación
 
-AÑADIR IMAGEN (TO DO)
+![Captura de pantalla 2021-06-04 220214](https://user-images.githubusercontent.com/48771457/120856803-a3d40900-c580-11eb-95a8-4b0a1b847573.png)
 
 Por otro lado, no se puede jugar en el caso de que no contemos con base inicial puesto que esto supone una derrota inmediata en nuestra contra. Para gestionar esto, añadimos una excepción cuando esto ocurre en el método **InitializeController()**. También comprobamos en dicho método que al principio contemos o con dinero o con alguna unidad inicial para conseguirlo puesto que en dicho caso solo nos tocaría esperar a que las unidades enemigas destruyesen nuestra base y perderíamos sin poder hacer nada para evitarlo. En la siguiente imagen podemos ver la comprobación realizada:
 
@@ -105,7 +105,7 @@ Por otro lado, no se puede jugar en el caso de que no contemos con base inicial 
 
 Finalmente, haciendo click en la siguiente imagen mostramos un fragmento de las pruebas realizadas para comprobar que se puede inicial la partida sin unidades propias dispuestas por el mapa y como el controlador comienza comprando unidades por su cuenta sin intervención externa.
 
-HACER VIDEO CON LA VERSIÓN ACTUALIZADA (TO DO)
+[![image](https://user-images.githubusercontent.com/48771457/120855140-640c2200-c57e-11eb-80a1-a2630ea16b4d.png)](https://youtu.be/OdxiCvBpY7k)
 
 ### 4.3.- Combate contra IA simple (RTSControllerExample3)
 
@@ -113,19 +113,23 @@ Esta fue una de las primeras pruebas que realizamos para comprobar que en situac
 
 También nos sirvió para darnos cuenta de que había cosas en el diseño de nuestro controlador que no acababan de cuadrar. Por ejemplo la estrategia que habíamos ideado para el movimiento de los extractores no estaba funcionando como debería. Todos trataban de ir a la zona de extracción más cercana a la base sin comprobar si esta estaba libre y por lo tanto estaban esperando al que el primero acabase para entrar el siguiente. Nos dimos cuenta que obviamente deberíamos distribuirlos de otra forma para que la obtención de recursos fuese mucho más rápida e hicimos los cambios pertinentes para mejorarlo.
 
-Haciendo click en la siguiente imagen podrás ver un video con un fragmento de las pruebas realizadas para este apartado:
+Haciendo click en la siguiente imagen podrás ver un vídeo con un fragmento de las pruebas realizadas para este apartado:
 
 [![image](https://user-images.githubusercontent.com/48771457/120833169-c4409b00-c561-11eb-807f-a55cd7eb74f1.png)](https://youtu.be/ysJjr7nLXO0)
 
 ### 4.4.- Combate contra nuestra propia IA 
 Una de las ultimas pruebas que realizamos, cuando la IA ya estaba casi terminada fue enfrentar la IA contra si misma. Al principio la partida empieza bastante igualada y lenta, ambos equipos comienzan farmeando, extrayendo recursos. Una vez que una de ellas obtiene los recursos suficientes empieza a atacar, y se empiezan a movilizar todas las tropas,la otra entonces comienza la defensa y asi empieza la lucha entre tropas hasta que uno de los dos equipos consigue la superioridad militar suficiente como para lanzarse a la ofensiva y atacar la base del contrario, con lo que gana la partida.
 
-Algunas de  partidas que hemos probado de este tipo siguen el modelo anterior,(farming, una ataca el otro se defiende y siguen en conflicto hasta que uno consigue tener una superioridad en numero de tropas suficiente como para atacar la base del contrario y asi ganar la partida)
+Algunas de  partidas que hemos probado de este tipo siguen el modelo anterior (farming, una ataca el otro se defiende y siguen en conflicto hasta que uno consigue tener una superioridad en numero de tropas suficiente como para atacar la base del contrario y asi ganar la partida).
 
-Sin embargo en ocasiones nos surge el problema de que ambas se quedan farmeando y nunca se lanzan al ataque.
+Sin embargo en ocasiones nos surge el problema de que ambas se quedan farmeando y nunca se lanzan al ataque, creando un problema de inactividad.
+
 
 ### 4.5.- Combate en un escenario distinto al inicial
-Por ultimo probamos nuestra IA en un escenario diferente al que se deba por defecto, y funcionaba bastante bien, sin cambios destacables ni problemas.
+
+Por ultimo probamos nuestra IA en un escenario diferente al que se deba por defecto, y funcionaba bastante bien, sin cambios destacables ni problemas. En el único caso en el que nuestra IA se quedaba atascada se daba en las pruebas que involucraban que la zona de la base donde se crean las unidades se encontrase cercada y por tanto las unidades no pudiesen salir de la misma. Sin embargo no consideramos eso un problema de la IA en si, si no del diseño del propio escenario y de la navegación por el mismo. Haciendo click en la siguiente imagen accederemos a la prueba en vídeo en la podemos ver como durante el estado Farming el funcionamiento es idéntico al realizado en las pruebas anteriores.
+
+[![image](https://user-images.githubusercontent.com/48771457/120855752-2eb40400-c57f-11eb-821d-fa933b343eec.png)](https://youtu.be/NJlCmEw0Xos)
 
 ## 5.-Recursos de terceros empleados
 - Pseudocódigo del libro: [**AI for Games, Third Edition**](https://ebookcentral.proquest.com/lib/universidadcomplutense-ebooks/detail.action?docID=5735527) de **Millington**
