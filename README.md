@@ -70,15 +70,51 @@ Dicha implementación de batallones contaba también con un enum **Tipo Batallon
 
 Las dificultades para la implementación de este controlador llegaron a la hora de comprobar cuando la misión asignada al mismo estaba completa, puesto que eran necesarias muchas modificaciones para comprobar cuando todas las unidades habían llegado a un objetivo o habían derrotado al rival que se les había asignado. Por tanto, al desconocer cuando una misión había sido completada, nos era imposible reestructurar las tropas para crear nuevos batallones que realizasen otras tareas o simplemente cambiar la misión de un grupo ya formado. Estos hechos sumados a que se acercaba la fecha de entrega del controlador nos hicieron tomar la decisión de modificar nuestro planteamiento inicial y simplificarlo, de forma que controlabamos cuantas unidades realizaban una acción y cuantas otra en base a porcentajes.
 
-### 3.2.- Versión Stiwi/Paula
-Igual las mezclamos asi que esto pa luego :D
+### 3.2.- Versión final del controlador (TO DO REVISAR)
 
-### 3.3.- Versión Amaro/Aurora/Leyre
-Igual las mezclamos asi que esto pa luego :D
+Nuestro controlador basa su estrategia de manejo y compra de unidades en base a una serie de estados. Los cambios entre estados vienen dictaminados por la situación actual de la  partida: si contamos con **supremacía militar** sobre el enemigo (es decir, nuestra influencia total en el mapa es mayor que la del enemigo más un porcentaje), si contamos con **supremacía económica** (más dinero que el enemigo), si hay algún enemigo atacando nuestra base etc. Estos estados son los siguientes:
+
+- **Ofensivo**: estado en el que entramos cuando superamos claramente los recursos actuales del enemigo (tanto militares como económicos) o cuando este cuenta con pocas unidades ofensivas con las que defenderse de un ataque potente y organizado con todas nuestras tropas. En este estado, nuestro objetivo principal es atacar las instalaciones enemigas, dándole prioridad a los ataques sobre la base (60% de las unidades ofensivas) mientras que enviaremos a las tropas restantes (40% unidades ofensivas) a atacar la zona con mayor influencia rival para debilitar aun más a nuestro enemigo. Por otro lado, en el apartado de la gestión de la compra de las unidades, se prioriza la compra de unidades militares, y especialmente la de destructores puesto que contamos también con supremacía económica sobre el enemigo.
+
+- **Defensivo**: en el momento en el que nuestra base o la factoría se encuentren bajo las hordas del equipo rival pasaremos al estado defensa. En este estado enviaremos a nuestras tropas ofensivas a defender nuestras instalaciones priorizado la defensa de la base (50% de nuestras tropas ofensivas frente al 20% que se encargaran de la defensa de la factoría) en caso de que ambas instalaciones estén siendo atacadas. Puesto que es más sencillo entrar en este estado que en el de ataque, no vamos a enviar al 100% de nuestras tropas a defender y estas continuaran con la tarea que les fue asignada en el estado anterior (defender exploradores para tratar de conseguir mas recursos, atacar a la base rival etc.) En cuanto a la gestión de la compra durante este estado, priorizaremos la compra de exploradores, las unidades ofensivas mas baratas para contar con el mayor numero de tropas posibles para defender nuestras infraestructuras, seguido de los destructores y finalmente los extractores.
+
+- **Farming**: es el estado en el que comenzaremos por defecto cualquier partida. El objetivo durante este estado consiste en conseguir recursos económicos suficientes que luego pudiesemos invertir en mejores tropas para comenzar una estrategia más ofensiva como es el caso de **Guerrilla** o **Ofensiva**. Por lo tanto, una de las prioridades de este estado consiste en defender a nuestras unidades extractoras para así conseguir rápidamente la mayor cantidad de Solaris posibles. En este estado también las unidades se dedicarán a defender la factoria puesto que si esta es destruida seremos incapaces de ahorrar mas Solaris y todas nuestras unidades extractoras se volveran inútiles. La estrategia de compra a seguir se basará en 
+
+- **Guerilla**: RELLENAR SEGUN LOS CAMBIOS (TO DO)
+
+- **Emergencia**: RELLENAR SEGUN LOS CAMBIOS (TO DO)
 
 ## 4.-Pruebas realizadas
 
-Añadir pruebas realizadas :D
+### 4.1.- Comenzar la partida sin unidades
+
+Puesto que uno de los apartados de la práctica especifica concretamente realizar pruebas en base al estado inicial del escenario y el número inicial de unidades con las que cuenta nuestro controlador nos dedicamos a añadir una serie de restricciones al código para que no se diesen situaciones extrañas que pudiesen confundir a nuestra IA.
+
+Una de ellas es no poder empezar la partida con dinero negativo o 0 y no contar con extractores inicialmente. En ese caso la única opción con la que contamos para ganar dicha partida es mandar a todas nuestras tropas a atacar la base enemiga para tratar de destruirla y ganarla de la forma más rápida posible, puesto que no podemos conseguir dinero para comprar más recursos. Como esta situación también puede darse durante el transcurso de una partida, añadimos una comprobación extra en el método que se encarga de cambiar el estado del controlador. En la siguiente imagen mostramos el fragmento de código correspondiente a esta comprobación
+
+AÑADIR IMAGEN (TO DO)
+
+Por otro lado, no se puede jugar en el caso de que no contemos con base inicial puesto que esto supone una derrota inmediata en nuestra contra. Para gestionar esto, añadimos una excepción cuando esto ocurre en el método **InitializeController()**. También comprobamos en dicho método que al principio contemos o con dinero o con alguna unidad inicial para conseguirlo puesto que en dicho caso solo nos tocaría esperar a que las unidades enemigas destruyesen nuestra base y perderíamos sin poder hacer nada para evitarlo. En la siguiente imagen podemos ver la comprobación realizada:
+
+![devenv_MmvHFYBHQv](https://user-images.githubusercontent.com/48771457/120842168-a6c4fe80-c56c-11eb-9c55-6fe0344c1621.png)
+
+Finalmente, haciendo click en la siguiente imagen mostramos un fragmento de las pruebas realizadas para comprobar que se puede inicial la partida sin unidades propias dispuestas por el mapa y como el controlador comienza comprando unidades por su cuenta sin intervención externa.
+
+HACER VIDEO CON LA VERSIÓN ACTUALIZADA (TO DO)
+
+### 4.2.- Combate contra IA simple (RTSControllerExample3)
+
+Esta fue una de las primeras pruebas que realizamos para comprobar que en situaciones simples nuestra IA era capaz de defenderse de los ataques de otra IA simple. Pudimos confirmar que,a grandes rasgos, el cambio de estados funcionaba como deseabamos: comenzando en estado **farming**, cambiando ente este y **defensivo** cuando las unidades enemigas se acercaban peligrosamente al núcleo y cambiando al estado **Ofensivo** cuando el enemigo apenas contaba con unidades ofensivas para atacar su base y ganar la partida. 
+
+También nos sirvió para darnos cuenta de que había cosas en el diseño de nuestro controlador que no acababan de cuadrar. Por ejemplo la estrategia que habíamos ideado para el movimiento de los extractores no estaba funcionando como debería. Todos trataban de ir a la zona de extracción más cercana a la base sin comprobar si esta estaba libre y por lo tanto estaban esperando al que el primero acabase para entrar el siguiente. Nos dimos cuenta que obviamente deberíamos distribuirlos de otra forma para que la obtención de recursos fuese mucho más rápida e hicimos los cambios pertinentes para mejorarlo.
+
+Haciendo click en la siguiente imagen podrás ver un video con un fragmento de las pruebas realizadas para este apartado:
+
+[![image](https://user-images.githubusercontent.com/48771457/120833169-c4409b00-c561-11eb-807f-a55cd7eb74f1.png)](https://youtu.be/ysJjr7nLXO0)
+
+### 4.3.- Combate contra nuestra propia IA (TO DO)
+
+### 4.4.- Combate en un escenario distinto al inicial (TO DO)
 
 ## 5.-Recursos de terceros empleados
 - Pseudocódigo del libro: [**AI for Games, Third Edition**](https://ebookcentral.proquest.com/lib/universidadcomplutense-ebooks/detail.action?docID=5735527) de **Millington**
