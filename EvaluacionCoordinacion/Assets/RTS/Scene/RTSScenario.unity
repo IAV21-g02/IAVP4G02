@@ -508,26 +508,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 199240326}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bb5e6558b9910564ca25df52b8b1b66e, type: 3}
+  m_Script: {fileID: 11500000, guid: 857ca61d24f0c9346994e02a9fb4a824, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  thinkTime: 0.5
-  maximaPrioridad: 100
-  minDesiredExtractors: 2
-  minDesiredDestructors: 2
-  minDesiredExplorers: 2
-  currEstrategia: 0
-  dineroSuficiente: 60000
-  ataqueAliado: {fileID: 8300000, guid: 8958d4cdfc4f63e4a84a0e4c9fae7f7a, type: 3}
-  ataquePosicion: {fileID: 8300000, guid: f7e1cfc9138f22543bb6d0544925ab19, type: 3}
-  defiendePosicion: {fileID: 8300000, guid: c83440025d06148449cc87e75ce296d2, type: 3}
-  ganaste: {fileID: 8300000, guid: 8edf270fff9be4a4e9f39d90ff872c0f, type: 3}
-  perdiste: {fileID: 8300000, guid: 6b8fe8aacef11e74a95e9c01c6df4a18, type: 3}
-  gameOver: {fileID: 8300000, guid: a477de69032a5314fb157d1bda47b437, type: 3}
-  getRdy: {fileID: 8300000, guid: 06eadf0f30cc4a7498873f6e505c1dda, type: 3}
-  enemigoVisto: {fileID: 8300000, guid: 897571403627d68458d447ce637f158e, type: 3}
-  peligro: {fileID: 8300000, guid: b26a8ede605870648ab2eb0d0c9a8374, type: 3}
-  farm: {fileID: 8300000, guid: 23fbc4c0338a7ab468600f397a6811c6, type: 3}
 --- !u!4 &199240328
 Transform:
   m_ObjectHideFlags: 0
@@ -1614,12 +1597,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   thinkTime: 0.5
-  maximaPrioridad: 100
   minDesiredExtractors: 2
   minDesiredDestructors: 2
   minDesiredExplorers: 2
   currEstrategia: 0
-  dineroSuficiente: 60000
   ataqueAliado: {fileID: 8300000, guid: 8958d4cdfc4f63e4a84a0e4c9fae7f7a, type: 3}
   ataquePosicion: {fileID: 8300000, guid: f7e1cfc9138f22543bb6d0544925ab19, type: 3}
   defiendePosicion: {fileID: 8300000, guid: c83440025d06148449cc87e75ce296d2, type: 3}
