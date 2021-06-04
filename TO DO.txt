@@ -22,12 +22,12 @@ TO DO si da tiempo: Migrar UnitType de alguna forma en que no fuese un script qu
 TO DO LIST:
 -Enfrentar a la IA a sí misma y grabarlo (1 pto).
 -Variante del escenario e IA VS jugador humano (1 pto).
--Revisar la capacidad de adaptacion a situaciones iniciales extrañas.
--No se ve en la UI nuestro dinero
--Pequeña UI para saber en que estado se encuentra nuestra IA.
+-Revisar la capacidad de adaptacion a situaciones iniciales extrañas.							// Algunas...
+-No se ve en la UI nuestro dinero																//DONETE
+-Pequeña UI para saber en que estado se encuentra nuestra IA.									//DONETE
 -Documentacion (meter intento de batallones)
 -Videos de prueba/explicación.
 -Retocar estados y compra (Stiwi).
--Que se acaben bien las partidas que no funca bien (errores de cierre tras ganar/perder). 
+-Que se acaben bien las partidas que no funca bien (errores de cierre tras ganar/perder).		//DONETE 
 
  

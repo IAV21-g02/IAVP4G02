@@ -60,8 +60,11 @@ namespace es.ucm.fdi.iav.rts.g02
 
         private void OnDestroy()
         {
-            //Cuando se destruye esta entidad hay que quitar los valores de influencia de la misma en el mapa
-            MapManager.GetInstance().ActualizaPrioridadAlSalir(prevCasilla, this);
+            if (prevCasilla)
+            {
+                //Cuando se destruye esta entidad hay que quitar los valores de influencia de la misma en el mapa
+                MapManager.GetInstance().ActualizaPrioridadAlSalir(prevCasilla, this);  
+            }
         }
 
     }
