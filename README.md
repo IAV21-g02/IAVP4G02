@@ -120,7 +120,9 @@ Haciendo click en la siguiente imagen podrás ver un video con un fragmento de l
 ### 4.4.- Combate contra nuestra propia IA 
 Una de las ultimas pruebas que realizamos, cuando la IA ya estaba casi terminada fue enfrentar la IA contra si misma. Al principio la partida empieza bastante igualada y lenta, ambos equipos comienzan farmeando, extrayendo recursos. Una vez que una de ellas obtiene los recursos suficientes empieza a atacar, y se empiezan a movilizar todas las tropas,la otra entonces comienza la defensa y asi empieza la lucha entre tropas hasta que uno de los dos equipos consigue la superioridad militar suficiente como para lanzarse a la ofensiva y atacar la base del contrario, con lo que gana la partida.
 
-Casi todas las partidas que hemos probado de este tipo siguen el modelo anterior,(farming, una ataca el otro se defiende y siguen en conflicto hasta que uno consigue tener una superioridad en numero de tropas suficiente como para atacar la base del contrario y asi ganar la partida)
+Algunas de  partidas que hemos probado de este tipo siguen el modelo anterior,(farming, una ataca el otro se defiende y siguen en conflicto hasta que uno consigue tener una superioridad en numero de tropas suficiente como para atacar la base del contrario y asi ganar la partida)
+
+Sin embargo en ocasiones nos surge el problema de que ambas se quedan farmeando y nunca se lanzan al ataque.
 
 ### 4.5.- Combate en un escenario distinto al inicial
 Por ultimo probamos nuestra IA en un escenario diferente al que se deba por defecto, y funcionaba bastante bien, sin cambios destacables ni problemas.
