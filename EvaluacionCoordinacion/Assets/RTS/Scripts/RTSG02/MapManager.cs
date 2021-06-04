@@ -178,6 +178,18 @@ namespace es.ucm.fdi.iav.rts.g02
             }
         }
 
+        public int getEnemyPrio(ColorTeam team)
+        {
+            if (team == ColorTeam.AMARILLO)
+            {
+                return MaxprioAzul.prioridadAzul;
+            }
+            else
+            {
+                return MaxprioAmarillo.prioridadAmarilla;
+            }
+        }
+
         public void ActualizarMapaInfluencia()
         {
 

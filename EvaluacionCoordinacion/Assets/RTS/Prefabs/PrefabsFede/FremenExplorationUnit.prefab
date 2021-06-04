@@ -80,7 +80,7 @@ MonoBehaviour:
   _maxPositions: 20
   _radius: 8
   _attackDamage: 1
-  _attackTime: 0.25
+  _attackTime: 0.5
   _attackDistance: 12
 --- !u!114 &11400000
 MonoBehaviour:
